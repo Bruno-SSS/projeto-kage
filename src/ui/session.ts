@@ -94,7 +94,7 @@ export function parseSave(
       owned,
       ninjas,
       food: r.player.food ?? {},
-      story: r.player.story ?? newStoryProgress(),
+      story: { ...newStoryProgress(), ...r.player.story },
       stamina: r.player.stamina ?? { value: HISTORIA.energia.inicial, at: now.getTime() },
     },
   };

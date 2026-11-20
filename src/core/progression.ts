@@ -181,7 +181,7 @@ export function newPlayer(starters: string[], now: Date, cfg: ProgressionConfig)
     owned: Object.fromEntries(starters.map((id) => [id, true])),
     ninjas: Object.fromEntries(starters.map((id) => [id, newNinjaProgress(cfg)])),
     food: {},
-    story: { stars: {}, rewarded: [], perfect: [] },
+    story: { stars: {}, bestDeaths: {}, challenges: [], rewarded: [], perfect: [] },
     stamina: { value: 0, at: now.getTime() },
     day: dayKey(now, cfg),
     daily: { missionsDone: 0, rankSDone: 0, progress: {}, claimed: [] },

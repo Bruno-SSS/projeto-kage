@@ -9,9 +9,10 @@ import {
 import type { FormationSlot, NinjaTemplate } from './types';
 
 /**
- * Modo história: capítulos com fases em sequência, energia, estrelas por fase
- * e prêmios de primeira vitória, de capítulo concluído e de capítulo com 3★.
- * Puro, como progression.ts.
+ * Modo história: capítulos com fases em sequência. Cada fase tem algumas lutas
+ * (a última é o objetivo) e um desafio opcional mais forte. Estrelas (máx. 3):
+ * ★ vencer o objetivo, ★ no máximo N baixas somando as lutas da fase,
+ * ★ vencer o desafio. Com 3★ a fase pode ser varrida. Puro, como progression.ts.
  */
 
 export interface StageBonus {
@@ -22,14 +23,25 @@ export interface StageBonus {
   fragmentos?: Record<string, number>;
 }
 
+export interface Fight {
+  /** Multiplicador extra de vida/ataque/defesa desta luta. */
+  forca?: number;
+  inimigos: { id: string; row: number; col: number }[];
+}
+
 export interface StageDef {
   id: string;
   nome: string;
-  nivelInimigo: number;
-  /** Multiplicador extra de vida/ataque/defesa (chefes). */
-  forca?: number;
   chefe?: boolean;
-  inimigos: { id: string; row: number; col: number }[];
+  /** Nível da conta para jogar a fase. */
+  nivelMinimo?: number;
+  nivelInimigo: number;
+  /** Multiplicador extra aplicado a todas as lutas (chefes). */
+  forca?: number;
+  /** Lutas em sequência; a última é o objetivo da fase. */
+  lutas: Fight[];
+  /** Luta opcional mais forte (vale uma estrela). */
+  desafio?: Fight;
   primeiraVez?: StageBonus;
 }
 
@@ -56,13 +68,20 @@ export interface StoryConfig {
     custoFase: number;
   };
   premioPorEnergia: { xp: number; ryo: number };
-  estrelas: { maxMortesPara2: number };
+  estrelas: { maxMortes: number };
+  varredura: { exige3Estrelas: boolean; maxPorVez: number };
+  /** Rodadas por batalha antes do empate (empate = derrota). */
+  limiteRodadas: number;
   capitulos: ChapterDef[];
 }
 
 export interface StoryProgress {
-  /** Melhor número de estrelas por fase (ausente = nunca vencida). */
+  /** Estrelas atuais de cada fase (ausente = objetivo nunca vencido). */
   stars: Record<string, number>;
+  /** Menor número de baixas numa passagem completa da fase. */
+  bestDeaths: Record<string, number>;
+  /** Fases com o desafio vencido. */
+  challenges: string[];
   /** Capítulos cujo prêmio de conclusão já foi pago. */
   rewarded: string[];
   /** Capítulos cujo bônus de 3★ já foi pago. */
@@ -70,7 +89,7 @@ export interface StoryProgress {
 }
 
 export function newStoryProgress(): StoryProgress {
-  return { stars: {}, rewarded: [], perfect: [] };
+  return { stars: {}, bestDeaths: {}, challenges: [], rewarded: [], perfect: [] };
 }
 
 // -------------------------------------------------------------- energia
@@ -160,11 +179,14 @@ export function stageBlocker(
   now: Date,
   sc: StoryConfig,
 ): string | null {
-  const { chapter, index } = findStage(sc, stageId);
+  const { chapter, stage, index } = findStage(sc, stageId);
   const closed = chapterBlocker(state, chapter.id, sc);
   if (closed) return closed;
   if (index > 0 && !(state.story.stars[chapter.fases[index - 1].id] > 0)) {
     return 'Vença a fase anterior primeiro.';
+  }
+  if (stage.nivelMinimo && state.level < stage.nivelMinimo) {
+    return `Requer nível ${stage.nivelMinimo}.`;
   }
   if (currentStamina(state, now, sc) < sc.energia.custoFase) {
     return `Energia insuficiente (precisa de ${sc.energia.custoFase}).`;
@@ -172,14 +194,30 @@ export function stageBlocker(
   return null;
 }
 
-/** Time inimigo da fase, no nível da fase (e mais forte se for chefe). */
-export function stageEnemies(
+/** Motivo pelo qual o desafio não pode ser jogado, ou null. Não custa energia. */
+export function challengeBlocker(
+  state: PlayerState,
+  stageId: string,
+  sc: StoryConfig,
+): string | null {
+  const { stage } = findStage(sc, stageId);
+  if (!stage.desafio) return 'Esta fase não tem desafio.';
+  if (!(state.story.stars[stageId] > 0)) return 'Vença o objetivo da fase primeiro.';
+  if (state.story.challenges.includes(stageId)) return 'Desafio já vencido.';
+  return null;
+}
+
+function fightEnemies(
   stage: StageDef,
+  fight: Fight,
   ninjas: Record<string, NinjaTemplate>,
   pc: ProgressionConfig,
 ): FormationSlot[] {
-  const f = (stage.forca ?? 1) * (1 + pc.ninjas.crescimentoPorNivel * (stage.nivelInimigo - 1));
-  return stage.inimigos.map(({ id, row, col }) => {
+  const f =
+    (stage.forca ?? 1) *
+    (fight.forca ?? 1) *
+    (1 + pc.ninjas.crescimentoPorNivel * (stage.nivelInimigo - 1));
+  return fight.inimigos.map(({ id, row, col }) => {
     const base = ninjas[id];
     if (!base) throw new Error(`Fase ${stage.id}: ninja desconhecido "${id}".`);
     return {
@@ -197,9 +235,30 @@ export function stageEnemies(
   });
 }
 
-export function starsFor(deaths: number, sc: StoryConfig): number {
-  if (deaths === 0) return 3;
-  return deaths <= sc.estrelas.maxMortesPara2 ? 2 : 1;
+/** Inimigos da luta `wave` (0 = primeira) da fase. */
+export function stageEnemies(
+  stage: StageDef,
+  ninjas: Record<string, NinjaTemplate>,
+  pc: ProgressionConfig,
+  wave = stage.lutas.length - 1,
+): FormationSlot[] {
+  const fight = stage.lutas[wave];
+  if (!fight) throw new Error(`Fase ${stage.id}: luta ${wave} não existe.`);
+  return fightEnemies(stage, fight, ninjas, pc);
+}
+
+export function challengeEnemies(
+  stage: StageDef,
+  ninjas: Record<string, NinjaTemplate>,
+  pc: ProgressionConfig,
+): FormationSlot[] {
+  if (!stage.desafio) throw new Error(`Fase ${stage.id} não tem desafio.`);
+  return fightEnemies(stage, stage.desafio, ninjas, pc);
+}
+
+/** ★ objetivo + ★ baixas dentro do limite + ★ desafio. */
+export function starsFor(bestDeaths: number, challenge: boolean, sc: StoryConfig): number {
+  return 1 + (bestDeaths <= sc.estrelas.maxMortes ? 1 : 0) + (challenge ? 1 : 0);
 }
 
 // -------------------------------------------------------------- resultado
@@ -227,54 +286,15 @@ export interface StageResult {
   chapterPerfect: boolean;
 }
 
-/**
- * Registra o resultado de uma fase. Derrota não gasta energia (ela "volta").
- * Vitória gasta a energia, paga XP e ryo proporcionais à energia (com o bônus
- * do dia), o prêmio de primeira vez e, se for o caso, os prêmios do capítulo.
- */
-export function completeStage(
-  state: PlayerState,
-  stageId: string,
-  won: boolean,
-  deaths: number,
-  now: Date,
-  sc: StoryConfig,
-  pc: ProgressionConfig,
-  teamIds: string[] = [],
-): StageResult {
-  const blocker = stageBlocker(state, stageId, now, sc);
-  if (blocker) throw new Error(blocker);
-  const none = {
-    state,
-    reward: {},
-    levelUps: [],
-    stars: 0,
-    firstClear: false,
-    chapterCompleted: false,
-    chapterPerfect: false,
-  };
-  if (!won) return none;
-
+/** Recalcula as estrelas da fase e paga os prêmios de capítulo que ficaram devidos. */
+function updateStarsAndChapter(s: PlayerState, stageId: string, reward: Grant, sc: StoryConfig) {
   const { chapter } = findStage(sc, stageId);
-  let s = syncStamina(state, now, sc);
-  s = structuredClone(s);
-  s.stamina.value -= sc.energia.custoFase;
-
-  const stars = starsFor(deaths, sc);
-  const firstClear = !(s.story.stars[stageId] > 0);
+  const stars = starsFor(
+    s.story.bestDeaths[stageId] ?? Infinity,
+    s.story.challenges.includes(stageId),
+    sc,
+  );
   s.story.stars[stageId] = Math.max(s.story.stars[stageId] ?? 0, stars);
-  s.daily.progress.historia = (s.daily.progress.historia ?? 0) + 1;
-  s.daily.progress.vitoria = (s.daily.progress.vitoria ?? 0) + 1;
-
-  const energy = sc.energia.custoFase;
-  const xp = energy * sc.premioPorEnergia.xp * bonusMultiplier(now, 'historia', 'xp', pc);
-  const reward: Grant = {
-    xp,
-    ryo: energy * sc.premioPorEnergia.ryo * bonusMultiplier(now, 'historia', 'ryo', pc),
-    teamXp: { ids: teamIds, amount: xp },
-  };
-  const stageDef = chapter.fases.find((f) => f.id === stageId)!;
-  if (firstClear) addBonus(reward, stageDef.primeiraVez);
 
   let chapterCompleted = false;
   if (!s.story.rewarded.includes(chapter.id) && chapterCleared(s, chapter)) {
@@ -291,6 +311,60 @@ export function completeStage(
     addBonus(reward, chapter.bonus3Estrelas);
     chapterPerfect = true;
   }
+  return { stars: s.story.stars[stageId], chapterCompleted, chapterPerfect };
+}
+
+/** XP e ryo de uma passagem pela fase (com o bônus do dia). */
+function passReward(now: Date, sc: StoryConfig, pc: ProgressionConfig, teamIds: string[]): Grant {
+  const energy = sc.energia.custoFase;
+  const xp = energy * sc.premioPorEnergia.xp * bonusMultiplier(now, 'historia', 'xp', pc);
+  return {
+    xp,
+    ryo: energy * sc.premioPorEnergia.ryo * bonusMultiplier(now, 'historia', 'ryo', pc),
+    teamXp: { ids: teamIds, amount: xp },
+  };
+}
+
+/**
+ * Registra uma passagem completa pela fase (todas as lutas). `deaths` é a soma
+ * das baixas em todas as lutas. Derrota não gasta energia. Vitória gasta a
+ * energia, paga XP e ryo, o prêmio de primeira vez e os do capítulo.
+ */
+export function completeStage(
+  state: PlayerState,
+  stageId: string,
+  won: boolean,
+  deaths: number,
+  now: Date,
+  sc: StoryConfig,
+  pc: ProgressionConfig,
+  teamIds: string[] = [],
+): StageResult {
+  const blocker = stageBlocker(state, stageId, now, sc);
+  if (blocker) throw new Error(blocker);
+  if (!won) {
+    return {
+      state,
+      reward: {},
+      levelUps: [],
+      stars: state.story.stars[stageId] ?? 0,
+      firstClear: false,
+      chapterCompleted: false,
+      chapterPerfect: false,
+    };
+  }
+
+  const { stage } = findStage(sc, stageId);
+  const s = structuredClone(syncStamina(state, now, sc));
+  s.stamina.value -= sc.energia.custoFase;
+  const firstClear = !(s.story.stars[stageId] > 0);
+  s.story.bestDeaths[stageId] = Math.min(s.story.bestDeaths[stageId] ?? Infinity, deaths);
+  s.daily.progress.historia = (s.daily.progress.historia ?? 0) + 1;
+  s.daily.progress.vitoria = (s.daily.progress.vitoria ?? 0) + 1;
+
+  const reward = passReward(now, sc, pc, teamIds);
+  if (firstClear) addBonus(reward, stage.primeiraVez);
+  const { stars, chapterCompleted, chapterPerfect } = updateStarsAndChapter(s, stageId, reward, sc);
 
   const r = grant(s, reward, pc);
   return {
@@ -302,4 +376,87 @@ export function completeStage(
     chapterCompleted,
     chapterPerfect,
   };
+}
+
+/** Registra o desafio da fase. Vitória vale a estrela do desafio (e talvez o bônus de 3★). */
+export function completeChallenge(
+  state: PlayerState,
+  stageId: string,
+  won: boolean,
+  sc: StoryConfig,
+  pc: ProgressionConfig,
+): StageResult {
+  const blocker = challengeBlocker(state, stageId, sc);
+  if (blocker) throw new Error(blocker);
+  const none = {
+    state,
+    reward: {},
+    levelUps: [],
+    stars: state.story.stars[stageId] ?? 0,
+    firstClear: false,
+    chapterCompleted: false,
+    chapterPerfect: false,
+  };
+  if (!won) return none;
+  const s = structuredClone(state);
+  s.story.challenges.push(stageId);
+  const reward: Grant = {};
+  const { stars, chapterCompleted, chapterPerfect } = updateStarsAndChapter(s, stageId, reward, sc);
+  const r = grant(s, reward, pc);
+  return {
+    state: r.state,
+    reward,
+    levelUps: r.levelUps,
+    stars,
+    firstClear: false,
+    chapterCompleted,
+    chapterPerfect,
+  };
+}
+
+/** Motivo pelo qual a varredura não pode ser feita, ou null. */
+export function sweepBlocker(
+  state: PlayerState,
+  stageId: string,
+  times: number,
+  now: Date,
+  sc: StoryConfig,
+): string | null {
+  if (!Number.isInteger(times) || times < 1 || times > sc.varredura.maxPorVez) {
+    return `Varra de 1 a ${sc.varredura.maxPorVez} vezes.`;
+  }
+  if (sc.varredura.exige3Estrelas && state.story.stars[stageId] !== 3) {
+    return 'Varredura exige 3★ na fase.';
+  }
+  const blocker = stageBlocker(state, stageId, now, sc);
+  if (blocker && !blocker.startsWith('Energia')) return blocker;
+  if (currentStamina(state, now, sc) < sc.energia.custoFase * times) {
+    return `Energia insuficiente (precisa de ${sc.energia.custoFase * times}).`;
+  }
+  return null;
+}
+
+/** Repete a fase sem lutar: mesma energia e mesmo XP/ryo por passagem (sem prêmio de primeira vez). */
+export function sweepStage(
+  state: PlayerState,
+  stageId: string,
+  times: number,
+  now: Date,
+  sc: StoryConfig,
+  pc: ProgressionConfig,
+  teamIds: string[] = [],
+): { state: PlayerState; reward: Grant; levelUps: number[] } {
+  const blocker = sweepBlocker(state, stageId, times, now, sc);
+  if (blocker) throw new Error(blocker);
+  const s = structuredClone(syncStamina(state, now, sc));
+  s.stamina.value -= sc.energia.custoFase * times;
+  s.daily.progress.historia = (s.daily.progress.historia ?? 0) + times;
+  const one = passReward(now, sc, pc, teamIds);
+  const reward: Grant = {
+    xp: (one.xp ?? 0) * times,
+    ryo: (one.ryo ?? 0) * times,
+    teamXp: { ids: teamIds, amount: (one.xp ?? 0) * times },
+  };
+  const r = grant(s, reward, pc);
+  return { state: r.state, reward, levelUps: r.levelUps };
 }
