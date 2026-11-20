@@ -14,14 +14,18 @@ import type { NinjaTemplate } from './types';
  * efeito disso nos atributos usados na batalha. Puro, como progression.ts.
  */
 
-export function ninjaProgress(state: PlayerState, id: string): NinjaProgress {
-  return state.ninjas[id] ?? newNinjaProgress();
+export function ninjaProgress(
+  state: PlayerState,
+  id: string,
+  cfg: ProgressionConfig,
+): NinjaProgress {
+  return state.ninjas[id] ?? newNinjaProgress(cfg);
 }
 
 /** Multiplicador de vida, ataque e defesa pelo nível e pelas estrelas. */
 export function statMultiplier(p: NinjaProgress, cfg: ProgressionConfig): number {
-  const { crescimentoPorNivel, bonusPorEstrela } = cfg.ninjas;
-  return (1 + crescimentoPorNivel * (p.level - 1)) * (1 + bonusPorEstrela * (p.stars - 1));
+  const { crescimentoPorNivel, multiplicadorEstrela } = cfg.ninjas;
+  return (1 + crescimentoPorNivel * (p.level - 1)) * (multiplicadorEstrela[String(p.stars)] ?? 1);
 }
 
 /** O ninja com os atributos do nível e das estrelas. Velocidade não muda. */
@@ -52,7 +56,7 @@ export function feedBlocker(
   if (!state.owned[id]) return 'Você não tem esse ninja.';
   if (!cfg.ninjas.comida[food]) return `Comida desconhecida: ${food}.`;
   if ((state.food[food] ?? 0) <= 0) return `Sem ${cfg.ninjas.comida[food].nome}.`;
-  const p = ninjaProgress(state, id);
+  const p = ninjaProgress(state, id, cfg);
   if (p.level >= ninjaLevelCap(state, cfg) && p.xp >= xpToNext(p.level, cfg) - 1) {
     return 'Ninja no limite de nível. Suba o nível da conta.';
   }
@@ -82,7 +86,7 @@ export function starUpCost(p: NinjaProgress, cfg: ProgressionConfig): number | n
 
 export function starUp(state: PlayerState, id: string, cfg: ProgressionConfig): PlayerState {
   if (!state.owned[id]) throw new Error('Você não tem esse ninja.');
-  const p = ninjaProgress(state, id);
+  const p = ninjaProgress(state, id, cfg);
   const cost = starUpCost(p, cfg);
   if (cost === null) throw new Error('Estrela máxima.');
   const have = state.fragments[id] ?? 0;

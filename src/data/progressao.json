@@ -191,16 +191,23 @@
     "6": []
   },
   "ninjas": {
-    "_observacao": "Crescimento, limite e estrelas PROVISÓRIOS até a pesquisa de evolução dos ninjas. XP da comida vem da pesquisa.",
-    "crescimentoPorNivel": 0.04,
+    "_observacao": "Calibrado com a pesquisa de evolução (2026): +0,44% da base por nível; estrelas ×1,10/×1,15/×1,20 em 3/4/5★ (2★ e 5★ inferidos); custo 50/100/200 (1→2 inferido); a maioria dos ninjas começa com 3★.",
+    "crescimentoPorNivel": 0.0044,
     "folgaSobreNivelConta": 0,
-    "bonusPorEstrela": 0.08,
+    "estrelaInicial": 3,
     "estrelaMaxima": 5,
+    "multiplicadorEstrela": {
+      "1": 1,
+      "2": 1.05,
+      "3": 1.1,
+      "4": 1.15,
+      "5": 1.2
+    },
     "custoEstrela": {
-      "2": 20,
-      "3": 40,
-      "4": 80,
-      "5": 120
+      "2": 25,
+      "3": 50,
+      "4": 100,
+      "5": 200
     },
     "comida": {
       "pao": {

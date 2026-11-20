@@ -40,8 +40,10 @@ export interface EvolutionConfig {
   crescimentoPorNivel: number;
   /** Quantos níveis o ninja pode passar do nível da conta. */
   folgaSobreNivelConta: number;
-  /** Atributos +N por estrela acima da 1ª. */
-  bonusPorEstrela: number;
+  /** Estrelas com que um ninja chega ao jogador. */
+  estrelaInicial: number;
+  /** Multiplicador de vida, ataque e defesa por estrela: { "3": 1.1, ... }. */
+  multiplicadorEstrela: Record<string, number>;
   estrelaMaxima: number;
   /** Fragmentos para chegar a cada estrela: { "2": 20, ... }. */
   custoEstrela: Record<string, number>;
@@ -173,7 +175,7 @@ export function newPlayer(starters: string[], now: Date, cfg: ProgressionConfig)
     wallet: { ryo: 0, cupom: 0, pergaminho: 0, lingote: 0 },
     fragments: {},
     owned: Object.fromEntries(starters.map((id) => [id, true])),
-    ninjas: Object.fromEntries(starters.map((id) => [id, newNinjaProgress()])),
+    ninjas: Object.fromEntries(starters.map((id) => [id, newNinjaProgress(cfg)])),
     food: {},
     day: dayKey(now, cfg),
     daily: { missionsDone: 0, rankSDone: 0, progress: {}, claimed: [] },
@@ -192,7 +194,7 @@ export function grant(state: PlayerState, g: Grant, cfg: ProgressionConfig): Gra
     s.fragments[f.ninjaId] = (s.fragments[f.ninjaId] ?? 0) + f.amount;
   for (const id of g.ninjas ?? []) {
     s.owned[id] = true;
-    s.ninjas[id] ??= newNinjaProgress();
+    s.ninjas[id] ??= newNinjaProgress(cfg);
   }
   for (const [food, n] of Object.entries(g.food ?? {})) s.food[food] = (s.food[food] ?? 0) + n;
 
@@ -218,8 +220,8 @@ export function grant(state: PlayerState, g: Grant, cfg: ProgressionConfig): Gra
   return { state: s, levelUps };
 }
 
-export function newNinjaProgress(): NinjaProgress {
-  return { level: 1, xp: 0, stars: 1 };
+export function newNinjaProgress(cfg: ProgressionConfig): NinjaProgress {
+  return { level: 1, xp: 0, stars: cfg.ninjas.estrelaInicial };
 }
 
 /** Nível máximo que um ninja pode ter agora. */
@@ -237,7 +239,7 @@ export function addNinjaXpInPlace(
   amount: number,
   cfg: ProgressionConfig,
 ): number {
-  const p = (s.ninjas[id] ??= newNinjaProgress());
+  const p = (s.ninjas[id] ??= newNinjaProgress(cfg));
   const cap = ninjaLevelCap(s, cfg);
   const start = p.level;
   p.xp += amount;
@@ -264,6 +266,7 @@ export function grantFromRewards(rewards: Reward[]): Grant {
 export function recruitWithFragments(
   state: PlayerState,
   ninjaId: string,
+  cfg: ProgressionConfig,
   needed = FRAGMENTS_TO_RECRUIT,
 ): PlayerState {
   if (state.owned[ninjaId]) throw new Error(`Você já tem ${ninjaId}.`);
@@ -272,7 +275,7 @@ export function recruitWithFragments(
   const s = structuredClone(state);
   s.fragments[ninjaId] = have - needed;
   s.owned[ninjaId] = true;
-  s.ninjas[ninjaId] ??= newNinjaProgress();
+  s.ninjas[ninjaId] ??= newNinjaProgress(cfg);
   return s;
 }
 

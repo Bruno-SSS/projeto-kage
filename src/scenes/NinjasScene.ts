@@ -39,7 +39,7 @@ export class NinjasScene extends Phaser.Scene {
     const rowH = Math.min(70, 420 / Math.max(1, owned.length));
     owned.forEach((base, i) => {
       const y = 140 + i * rowH;
-      const p = ninjaProgress(player, base.id);
+      const p = ninjaProgress(player, base.id, cfg);
       const n = evolved(base.id);
       this.add.rectangle(480, y, 912, rowH - 6, COLORS.panel).setStrokeStyle(1, COLORS.border);
       this.add.text(
