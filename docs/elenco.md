@@ -67,6 +67,25 @@ Quando mais de um aliado pode perseguir, vai o mais rápido.
 Boitatá usa o básico (aplica `derrubado`) → Saci persegue (`derrubado` → `no_ar`) → Boitatá
 persegue (`no_ar` → `derrubado`) → Curupira persegue e finaliza.
 
+## Modelos 3D
+
+A batalha é desenhada em 3D (Three.js). Sem `visual.modelo`, cada ninja aparece como um boneco
+low-poly original, montado em código: lenço na cor do elemento (ou `visual.cor`) e faixa na cor do
+time.
+
+Para usar um modelo próprio:
+
+1. Coloque o arquivo `.glb` em `public/modelos/` (ex.: `public/modelos/saci.glb`). Use só modelos
+   que vocês têm direito de usar.
+2. No ninja, preencha `"visual": { "modelo": "modelos/saci.glb" }`.
+3. Se o modelo tiver animações, mapeie os clipes do jogo para os nomes dentro do arquivo:
+   `"animacoes": { "idle": "Parado", "attack": "Soco", "hit": "Dano", "death": "Morte" }`.
+   Clipes usados: `idle` (em loop), `attack`, `hit`, `knockdown`, `air`, `pushed`, `death`.
+   Clipe que faltar é substituído pelo movimento padrão.
+
+O modelo é redimensionado para a altura padrão e deve estar olhando para a frente (+Z). Se o
+arquivo não carregar, o jogo usa o boneco e avisa no console.
+
 ## Formações
 
 As formações (a sugerida para o jogador e a do inimigo) ficam em `src/data/formations.ts` e
