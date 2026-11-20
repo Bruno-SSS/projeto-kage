@@ -41,3 +41,20 @@ Lista de tarefas do dia: `id`, `nome`, `atividade` (`vitoria`, `missao`, `recrut
 Por dia da semana do dia de jogo (`"0"` = domingo ... `"6"` = sábado): lista de
 `{ "atividade", "recurso": "xp" | "ryo", "multiplicador" }`. Hoje: terça XP de missões ×2,
 sexta ryo de missões ×2, segunda XP de história ×2 (a história ainda não existe).
+
+## `ninjas` (evolução)
+
+> Crescimento por nível, limite e custo das estrelas são **provisórios** até a pesquisa de
+> evolução dos ninjas. O XP das comidas vem da pesquisa.
+
+| Campo                  | O que é                                                                                                                            |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `crescimentoPorNivel`  | Vida, ataque e defesa +N por nível acima do 1 (0.04 = +4%). Os inimigos das missões usam o nível da conta com o mesmo crescimento. |
+| `folgaSobreNivelConta` | Quantos níveis o ninja pode passar do nível da conta (0 = no máximo o nível da conta).                                             |
+| `bonusPorEstrela`      | Vida, ataque e defesa +N por estrela acima da 1ª.                                                                                  |
+| `estrelaMaxima`        | Estrela máxima.                                                                                                                    |
+| `custoEstrela`         | Fragmentos do próprio ninja para chegar a cada estrela: `{ "2": 20, "3": 40, ... }`.                                               |
+| `comida`               | Itens que dão XP ao ninja: `{ "pao": { "nome": "Pão", "xp": 50000 } }`.                                                            |
+
+Ninjas ganham XP lutando: ao vencer uma missão, cada ninja do time recebe o mesmo XP da conta.
+Comida vem das missões (campo `comida` de cada rank) e das diárias (campo `comida` da tarefa).

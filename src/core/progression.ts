@@ -22,6 +22,30 @@ export interface RankConfig {
   fragmentos: number;
   inimigos: number;
   forcaInimigo: number;
+  comida?: FoodBag;
+}
+
+/** Quantidade de cada comida, ex. { "pao": 2 }. */
+export type FoodBag = Record<string, number>;
+
+export interface NinjaProgress {
+  level: number;
+  /** XP dentro do nível atual. */
+  xp: number;
+  stars: number;
+}
+
+export interface EvolutionConfig {
+  /** Atributos (vida, ataque, defesa) +N por nível acima do 1 (0.04 = +4%). */
+  crescimentoPorNivel: number;
+  /** Quantos níveis o ninja pode passar do nível da conta. */
+  folgaSobreNivelConta: number;
+  /** Atributos +N por estrela acima da 1ª. */
+  bonusPorEstrela: number;
+  estrelaMaxima: number;
+  /** Fragmentos para chegar a cada estrela: { "2": 20, ... }. */
+  custoEstrela: Record<string, number>;
+  comida: Record<string, { nome: string; xp: number }>;
 }
 
 export interface DailyTaskConfig {
@@ -33,6 +57,7 @@ export interface DailyTaskConfig {
   ryo?: number;
   cupom?: number;
   pergaminho?: number;
+  comida?: FoodBag;
 }
 
 export interface ProgressionConfig {
@@ -54,6 +79,7 @@ export interface ProgressionConfig {
   };
   diarias: DailyTaskConfig[];
   bonusSemanal: Record<string, { atividade: Activity; recurso: Resource; multiplicador: number }[]>;
+  ninjas: EvolutionConfig;
 }
 
 export interface Wallet {
@@ -78,6 +104,9 @@ export interface PlayerState {
   wallet: Wallet;
   fragments: Record<string, number>;
   owned: Record<string, boolean>;
+  /** Nível, XP e estrelas de cada ninja que o jogador tem. */
+  ninjas: Record<string, NinjaProgress>;
+  food: FoodBag;
   /** Dia de jogo corrente (vira às `horaReset` de Brasília), ex. "2026-11-20". */
   day: string;
   daily: {
@@ -98,6 +127,9 @@ export interface Grant {
   lingote?: number;
   fragments?: { ninjaId: string; amount: number }[];
   ninjas?: string[];
+  food?: FoodBag;
+  /** XP para os ninjas do time (cada um recebe o valor inteiro). */
+  teamXp?: { ids: string[]; amount: number };
 }
 
 export interface GrantResult {
@@ -141,6 +173,8 @@ export function newPlayer(starters: string[], now: Date, cfg: ProgressionConfig)
     wallet: { ryo: 0, cupom: 0, pergaminho: 0, lingote: 0 },
     fragments: {},
     owned: Object.fromEntries(starters.map((id) => [id, true])),
+    ninjas: Object.fromEntries(starters.map((id) => [id, newNinjaProgress()])),
+    food: {},
     day: dayKey(now, cfg),
     daily: { missionsDone: 0, rankSDone: 0, progress: {}, claimed: [] },
     board: { slot: -1, missions: [] },
@@ -156,7 +190,11 @@ export function grant(state: PlayerState, g: Grant, cfg: ProgressionConfig): Gra
   s.wallet.lingote += g.lingote ?? 0;
   for (const f of g.fragments ?? [])
     s.fragments[f.ninjaId] = (s.fragments[f.ninjaId] ?? 0) + f.amount;
-  for (const id of g.ninjas ?? []) s.owned[id] = true;
+  for (const id of g.ninjas ?? []) {
+    s.owned[id] = true;
+    s.ninjas[id] ??= newNinjaProgress();
+  }
+  for (const [food, n] of Object.entries(g.food ?? {})) s.food[food] = (s.food[food] ?? 0) + n;
 
   const levelUps: number[] = [];
   s.xp += g.xp ?? 0;
@@ -172,7 +210,43 @@ export function grant(state: PlayerState, g: Grant, cfg: ProgressionConfig): Gra
     }
   }
   if (s.level >= cfg.nivel.maximo) s.xp = 0;
+
+  // Ninjas depois da conta: o limite deles depende do nível da conta.
+  for (const id of g.teamXp?.ids ?? []) {
+    if (s.owned[id]) addNinjaXpInPlace(s, id, g.teamXp!.amount, cfg);
+  }
   return { state: s, levelUps };
+}
+
+export function newNinjaProgress(): NinjaProgress {
+  return { level: 1, xp: 0, stars: 1 };
+}
+
+/** Nível máximo que um ninja pode ter agora. */
+export function ninjaLevelCap(state: PlayerState, cfg: ProgressionConfig): number {
+  return Math.min(cfg.nivel.maximo, state.level + cfg.ninjas.folgaSobreNivelConta);
+}
+
+/**
+ * Soma XP a um ninja (mesma curva da conta). No limite de nível o XP para em
+ * "quase subindo" e o excedente se perde. Devolve quantos níveis subiu.
+ */
+export function addNinjaXpInPlace(
+  s: PlayerState,
+  id: string,
+  amount: number,
+  cfg: ProgressionConfig,
+): number {
+  const p = (s.ninjas[id] ??= newNinjaProgress());
+  const cap = ninjaLevelCap(s, cfg);
+  const start = p.level;
+  p.xp += amount;
+  while (p.level < cap && p.xp >= xpToNext(p.level, cfg)) {
+    p.xp -= xpToNext(p.level, cfg);
+    p.level += 1;
+  }
+  if (p.level >= cap) p.xp = Math.min(p.xp, xpToNext(p.level, cfg) - 1);
+  return p.level - start;
 }
 
 /** Converte o resultado do gacha em concessão. */
@@ -198,6 +272,7 @@ export function recruitWithFragments(
   const s = structuredClone(state);
   s.fragments[ninjaId] = have - needed;
   s.owned[ninjaId] = true;
+  s.ninjas[ninjaId] ??= newNinjaProgress();
   return s;
 }
 
@@ -280,10 +355,10 @@ export function claimDaily(
   const status = dailyStatus(state, cfg).find((d) => d.task.id === taskId);
   if (!status) throw new Error(`Missão diária desconhecida: ${taskId}`);
   if (!status.claimable) throw new Error(`"${status.task.nome}" não pode ser resgatada.`);
-  const { xp, ryo, cupom, pergaminho } = status.task;
+  const { xp, ryo, cupom, pergaminho, comida } = status.task;
   const s = structuredClone(state);
   s.daily.claimed.push(taskId);
-  return grant(s, { xp, ryo, cupom, pergaminho }, cfg);
+  return grant(s, { xp, ryo, cupom, pergaminho, food: comida }, cfg);
 }
 
 // -------------------------------------------------------------- quadro D–S
@@ -348,11 +423,15 @@ const ENEMY_POSITIONS: Position[] = [
   { row: 1, col: 1 },
 ];
 
-/** Time inimigo da missão: ninjas sorteados do elenco, mais fracos ou mais fortes conforme o rank. */
+/**
+ * Time inimigo da missão: ninjas sorteados do elenco, no nível `enemyLevel`
+ * (normalmente o nível da conta), mais fracos ou mais fortes conforme o rank.
+ */
 export function missionEnemies(
   mission: Mission,
   roster: NinjaTemplate[],
   cfg: ProgressionConfig,
+  enemyLevel = 1,
 ): FormationSlot[] {
   const rank = cfg.quadro.ranks[mission.rank];
   const rng = seededRng(mission.seed);
@@ -360,7 +439,7 @@ export function missionEnemies(
   const count = Math.min(rank.inimigos, pool.length, ENEMY_POSITIONS.length);
   return Array.from({ length: count }, (_, i) => {
     const [base] = pool.splice(Math.floor(rng() * pool.length), 1);
-    const f = rank.forcaInimigo;
+    const f = rank.forcaInimigo * (1 + cfg.ninjas.crescimentoPorNivel * (enemyLevel - 1));
     const ninja: NinjaTemplate = {
       ...base,
       stats: {
@@ -386,6 +465,8 @@ export function completeMission(
   cfg: ProgressionConfig,
   roster: NinjaTemplate[],
   rng: () => number,
+  /** Ninjas do time, que ganham o mesmo XP da conta. */
+  teamIds: string[] = [],
 ): GrantResult & { reward: Grant } {
   const blocker = missionBlocker(state, missionId, cfg);
   if (blocker) throw new Error(blocker);
@@ -400,10 +481,13 @@ export function completeMission(
   s.daily.progress.missao = (s.daily.progress.missao ?? 0) + 1;
   s.daily.progress.vitoria = (s.daily.progress.vitoria ?? 0) + 1;
 
+  const xp = rank.xp * bonusMultiplier(now, 'missao', 'xp', cfg);
   const reward: Grant = {
-    xp: rank.xp * bonusMultiplier(now, 'missao', 'xp', cfg),
+    xp,
     ryo: rank.ryo * bonusMultiplier(now, 'missao', 'ryo', cfg),
+    teamXp: { ids: teamIds, amount: xp },
   };
+  if (rank.comida) reward.food = { ...rank.comida };
   if (rank.fragmentos > 0 && roster.length > 0) {
     const ninjaId = roster[Math.floor(rng() * roster.length)].id;
     reward.fragments = [{ ninjaId, amount: rank.fragmentos }];

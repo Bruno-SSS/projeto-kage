@@ -54,17 +54,20 @@ export class MissionsScene extends Phaser.Scene {
       const xp = rank.xp * bonusMultiplier(now, 'missao', 'xp', cfg);
       const ryo = rank.ryo * bonusMultiplier(now, 'missao', 'ryo', cfg);
       const frag = rank.fragmentos > 0 ? ` · ${rank.fragmentos} fragmento(s)` : '';
+      const food = Object.entries(rank.comida ?? {})
+        .map(([id, n]) => ` · ${n} ${cfg.ninjas.comida[id]?.nome ?? id}`)
+        .join('');
       this.add.text(
         90,
         y - 24,
-        `XP ${fmt(xp)} · Ryo ${fmt(ryo)}${frag}`,
+        `XP ${fmt(xp)} · Ryo ${fmt(ryo)}${frag}${food}`,
         textStyle(16, TEXT.main, true),
       );
-      const enemies = missionEnemies(mission, ROSTER, cfg);
+      const enemies = missionEnemies(mission, ROSTER, cfg, player.level);
       this.add.text(
         90,
         y + 4,
-        `Inimigos: ${enemies.map((e) => e.ninja.name).join(', ')} (força ${Math.round(rank.forcaInimigo * 100)}%)`,
+        `Inimigos: ${enemies.map((e) => e.ninja.name).join(', ')} (nível ${player.level}, força ${Math.round(rank.forcaInimigo * 100)}%)`,
         textStyle(13, TEXT.muted),
       );
 

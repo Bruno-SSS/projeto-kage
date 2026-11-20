@@ -91,7 +91,10 @@
         "ryo": 2000,
         "fragmentos": 0,
         "inimigos": 3,
-        "forcaInimigo": 0.85
+        "forcaInimigo": 0.85,
+        "comida": {
+          "pao": 1
+        }
       },
       "B": {
         "chance": 0.2,
@@ -99,7 +102,10 @@
         "ryo": 3000,
         "fragmentos": 1,
         "inimigos": 3,
-        "forcaInimigo": 1
+        "forcaInimigo": 1,
+        "comida": {
+          "pao": 2
+        }
       },
       "A": {
         "chance": 0.12,
@@ -107,7 +113,10 @@
         "ryo": 5000,
         "fragmentos": 2,
         "inimigos": 4,
-        "forcaInimigo": 1.15
+        "forcaInimigo": 1.15,
+        "comida": {
+          "ramen": 1
+        }
       },
       "S": {
         "chance": 0.05,
@@ -115,7 +124,10 @@
         "ryo": 8000,
         "fragmentos": 5,
         "inimigos": 4,
-        "forcaInimigo": 1.35
+        "forcaInimigo": 1.35,
+        "comida": {
+          "churrasco": 1
+        }
       }
     }
   },
@@ -126,7 +138,10 @@
       "atividade": "vitoria",
       "quantidade": 3,
       "xp": 30000,
-      "ryo": 5000
+      "ryo": 5000,
+      "comida": {
+        "pao": 2
+      }
     },
     {
       "id": "missoes-quadro",
@@ -134,7 +149,10 @@
       "atividade": "missao",
       "quantidade": 3,
       "xp": 30000,
-      "ryo": 5000
+      "ryo": 5000,
+      "comida": {
+        "ramen": 1
+      }
     },
     {
       "id": "recrutar",
@@ -171,5 +189,32 @@
       }
     ],
     "6": []
+  },
+  "ninjas": {
+    "_observacao": "Crescimento, limite e estrelas PROVISÓRIOS até a pesquisa de evolução dos ninjas. XP da comida vem da pesquisa.",
+    "crescimentoPorNivel": 0.04,
+    "folgaSobreNivelConta": 0,
+    "bonusPorEstrela": 0.08,
+    "estrelaMaxima": 5,
+    "custoEstrela": {
+      "2": 20,
+      "3": 40,
+      "4": 80,
+      "5": 120
+    },
+    "comida": {
+      "pao": {
+        "nome": "Pão",
+        "xp": 50000
+      },
+      "ramen": {
+        "nome": "Ramen",
+        "xp": 100000
+      },
+      "churrasco": {
+        "nome": "Churrasco",
+        "xp": 500000
+      }
+    }
   }
 }
