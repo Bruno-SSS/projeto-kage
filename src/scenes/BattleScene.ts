@@ -15,6 +15,14 @@ export interface BattleData {
   missionId?: string;
   /** Fase da história que esta luta resolve. */
   stageId?: string;
+  /** Luta da fase (0 = primeira). */
+  wave?: number;
+  /** Baixas somadas nas lutas anteriores da fase. */
+  deathsSoFar?: number;
+  /** Esta luta é o desafio opcional da fase. */
+  challenge?: boolean;
+  /** Limite de rodadas (empate = derrota). */
+  maxRounds?: number;
   /** Cena para onde voltar depois do resultado. */
   returnTo?: string;
 }
@@ -75,7 +83,11 @@ export class BattleScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.battle = new Battle(this.data_.teamA, this.data_.teamB);
+    this.battle = new Battle(
+      this.data_.teamA,
+      this.data_.teamB,
+      this.data_.maxRounds ? { maxRounds: this.data_.maxRounds } : undefined,
+    );
 
     this.drawField();
     this.drawHud();
