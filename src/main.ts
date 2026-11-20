@@ -6,6 +6,7 @@ import { HubScene } from './scenes/HubScene';
 import { MissionsScene } from './scenes/MissionsScene';
 import { NinjasScene } from './scenes/NinjasScene';
 import { RecruitScene } from './scenes/RecruitScene';
+import { StoryScene } from './scenes/StoryScene';
 import { ResultScene } from './scenes/ResultScene';
 import { TitleScene } from './scenes/TitleScene';
 import { COLORS, HEIGHT, WIDTH } from './ui/theme';
@@ -25,6 +26,7 @@ const game = new Phaser.Game({
     TitleScene,
     HubScene,
     FormationScene,
+    StoryScene,
     MissionsScene,
     NinjasScene,
     DailyScene,

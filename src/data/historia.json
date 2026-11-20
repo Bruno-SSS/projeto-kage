@@ -1,0 +1,512 @@
+{
+  "_observacao": "Enredo original do Projeto Kage. Energia e XP por energia vêm da pesquisa; estrutura de fases, estrelas e prêmios por fase são provisórios até a pesquisa do modo história. Documentação: docs/historia.md",
+  "energia": {
+    "inicial": 150,
+    "regenMinutos": 6,
+    "tetoRegen": 150,
+    "diaria": 100,
+    "maximo": 350,
+    "custoFase": 10
+  },
+  "premioPorEnergia": {
+    "xp": 150,
+    "ryo": 50
+  },
+  "estrelas": {
+    "_regra": "1★ vencer; 2★ vencer com no máximo 1 ninja caído; 3★ vencer sem perder ninguém",
+    "maxMortesPara2": 1
+  },
+  "capitulos": [
+    {
+      "id": "c1",
+      "nome": "A Mata Acordou",
+      "nivelMinimo": 1,
+      "texto": "Fogo corre entre as árvores sem queimar nada. Os guardiões da Vila da Mata percebem que alguém está despertando os espíritos antigos à força.",
+      "conclusao": {
+        "fragmentos": {
+          "iara": 20
+        },
+        "ryo": 5000
+      },
+      "bonus3Estrelas": {
+        "cupom": 20
+      },
+      "fases": [
+        {
+          "id": "c1-f1",
+          "nome": "Rastros invertidos",
+          "nivelInimigo": 1,
+          "inimigos": [
+            {
+              "id": "curupira",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "saci",
+              "row": 0,
+              "col": 1
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "pao": 1
+            }
+          }
+        },
+        {
+          "id": "c1-f2",
+          "nome": "Redemoinho na trilha",
+          "nivelInimigo": 2,
+          "inimigos": [
+            {
+              "id": "saci",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "mapinguari",
+              "row": 0,
+              "col": 0
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "pao": 1
+            }
+          }
+        },
+        {
+          "id": "c1-f3",
+          "nome": "O rio canta",
+          "nivelInimigo": 3,
+          "inimigos": [
+            {
+              "id": "iara",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "curupira",
+              "row": 0,
+              "col": 0
+            },
+            {
+              "id": "saci",
+              "row": 2,
+              "col": 1
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "pao": 2
+            }
+          }
+        },
+        {
+          "id": "c1-f4",
+          "nome": "Pegadas de gigante",
+          "nivelInimigo": 4,
+          "inimigos": [
+            {
+              "id": "mapinguari",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "curupira",
+              "row": 2,
+              "col": 0
+            },
+            {
+              "id": "boitata",
+              "row": 0,
+              "col": 1
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "ramen": 1
+            }
+          }
+        },
+        {
+          "id": "c1-f5",
+          "nome": "Chefe: a Serpente de Fogo",
+          "chefe": true,
+          "forca": 1,
+          "nivelInimigo": 5,
+          "inimigos": [
+            {
+              "id": "boitata",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "saci",
+              "row": 0,
+              "col": 0
+            },
+            {
+              "id": "curupira",
+              "row": 2,
+              "col": 0
+            },
+            {
+              "id": "mapinguari",
+              "row": 1,
+              "col": 2
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "ramen": 1
+            },
+            "pergaminho": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "nome": "O Caldeirão da Serra",
+      "nivelMinimo": 8,
+      "texto": "As chamas vinham de um caldeirão escondido na serra. Quem o mexe conhece feitiços que prendem os espíritos e os faz lutar contra a própria vila.",
+      "conclusao": {
+        "fragmentos": {
+          "cuca": 30
+        },
+        "ryo": 15000
+      },
+      "bonus3Estrelas": {
+        "cupom": 30
+      },
+      "fases": [
+        {
+          "id": "c2-f1",
+          "nome": "Névoa na encosta",
+          "nivelInimigo": 8,
+          "inimigos": [
+            {
+              "id": "iara",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "saci",
+              "row": 0,
+              "col": 0
+            },
+            {
+              "id": "cuca",
+              "row": 2,
+              "col": 2
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "ramen": 1
+            }
+          }
+        },
+        {
+          "id": "c2-f2",
+          "nome": "Faíscas no caminho",
+          "nivelInimigo": 9,
+          "inimigos": [
+            {
+              "id": "cuca",
+              "row": 1,
+              "col": 1
+            },
+            {
+              "id": "curupira",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "boitata",
+              "row": 0,
+              "col": 0
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "ramen": 1
+            }
+          }
+        },
+        {
+          "id": "c2-f3",
+          "nome": "Guardas de pedra",
+          "nivelInimigo": 10,
+          "inimigos": [
+            {
+              "id": "mapinguari",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "curupira",
+              "row": 0,
+              "col": 0
+            },
+            {
+              "id": "saci",
+              "row": 2,
+              "col": 0
+            },
+            {
+              "id": "cuca",
+              "row": 1,
+              "col": 2
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "ramen": 2
+            }
+          }
+        },
+        {
+          "id": "c2-f4",
+          "nome": "A ponte sobre a correnteza",
+          "nivelInimigo": 11,
+          "inimigos": [
+            {
+              "id": "iara",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "saci",
+              "row": 0,
+              "col": 1
+            },
+            {
+              "id": "boitata",
+              "row": 2,
+              "col": 1
+            },
+            {
+              "id": "cuca",
+              "row": 1,
+              "col": 2
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "churrasco": 1
+            }
+          }
+        },
+        {
+          "id": "c2-f5",
+          "nome": "Chefe: a dona do caldeirão",
+          "chefe": true,
+          "forca": 1.35,
+          "nivelInimigo": 12,
+          "inimigos": [
+            {
+              "id": "cuca",
+              "row": 1,
+              "col": 1
+            },
+            {
+              "id": "mapinguari",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "iara",
+              "row": 0,
+              "col": 0
+            },
+            {
+              "id": "boitata",
+              "row": 2,
+              "col": 0
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "churrasco": 1
+            },
+            "pergaminho": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "nome": "A Lua da Correnteza",
+      "nivelMinimo": 15,
+      "texto": "Livre do caldeirão, a vila descobre o que o feitiço escondia: o rio está subindo sem chuva, e o canto que vem dele chama cada vez mais longe.",
+      "conclusao": {
+        "fragmentos": {
+          "iara": 40
+        },
+        "ryo": 30000,
+        "pergaminho": 5
+      },
+      "bonus3Estrelas": {
+        "cupom": 40
+      },
+      "fases": [
+        {
+          "id": "c3-f1",
+          "nome": "Margens alagadas",
+          "nivelInimigo": 15,
+          "inimigos": [
+            {
+              "id": "iara",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "boitata",
+              "row": 0,
+              "col": 1
+            },
+            {
+              "id": "saci",
+              "row": 2,
+              "col": 0
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "ramen": 2
+            }
+          }
+        },
+        {
+          "id": "c3-f2",
+          "nome": "Barcos sem remador",
+          "nivelInimigo": 16,
+          "inimigos": [
+            {
+              "id": "boitata",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "cuca",
+              "row": 0,
+              "col": 2
+            },
+            {
+              "id": "iara",
+              "row": 2,
+              "col": 1
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "ramen": 2
+            }
+          }
+        },
+        {
+          "id": "c3-f3",
+          "nome": "A ilha que se move",
+          "nivelInimigo": 17,
+          "inimigos": [
+            {
+              "id": "mapinguari",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "curupira",
+              "row": 0,
+              "col": 0
+            },
+            {
+              "id": "cuca",
+              "row": 1,
+              "col": 2
+            },
+            {
+              "id": "saci",
+              "row": 2,
+              "col": 1
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "churrasco": 1
+            }
+          }
+        },
+        {
+          "id": "c3-f4",
+          "nome": "O eco no fundo do rio",
+          "nivelInimigo": 18,
+          "inimigos": [
+            {
+              "id": "iara",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "curupira",
+              "row": 0,
+              "col": 0
+            },
+            {
+              "id": "boitata",
+              "row": 2,
+              "col": 0
+            },
+            {
+              "id": "cuca",
+              "row": 1,
+              "col": 2
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "churrasco": 1
+            }
+          }
+        },
+        {
+          "id": "c3-f5",
+          "nome": "Chefe: a voz da correnteza",
+          "chefe": true,
+          "forca": 1.25,
+          "nivelInimigo": 20,
+          "inimigos": [
+            {
+              "id": "iara",
+              "row": 1,
+              "col": 1
+            },
+            {
+              "id": "boitata",
+              "row": 0,
+              "col": 0
+            },
+            {
+              "id": "mapinguari",
+              "row": 1,
+              "col": 0
+            },
+            {
+              "id": "cuca",
+              "row": 2,
+              "col": 2
+            }
+          ],
+          "primeiraVez": {
+            "comida": {
+              "churrasco": 2
+            },
+            "pergaminho": 5
+          }
+        }
+      ]
+    }
+  ]
+}

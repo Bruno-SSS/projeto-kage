@@ -36,6 +36,7 @@ export class HubScene extends Phaser.Scene {
     const teamSize = loadFormation().length;
 
     const items: [string, string, () => void][] = [
+      ['História', 'capítulos e energia', () => this.scene.start('Story')],
       ['Missões D–S', `${missionsLeft} restantes hoje`, () => this.scene.start('Missions')],
       [
         'Missões diárias',
@@ -66,8 +67,8 @@ export class HubScene extends Phaser.Scene {
       const col = i % 2;
       const row = Math.floor(i / 2);
       const x = 300 + col * 360;
-      const y = 150 + row * 100;
-      new Button(this, x, y, 320, 74, `${label}\n${sub}`, onClick, { fontSize: 18 });
+      const y = 120 + row * 86;
+      new Button(this, x, y, 320, 70, `${label}\n${sub}`, onClick, { fontSize: 18 });
     });
 
     const bonus = PROGRESSAO.bonusSemanal[String(gameWeekday(now, PROGRESSAO))] ?? [];
