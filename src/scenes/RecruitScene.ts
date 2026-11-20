@@ -135,7 +135,7 @@ export class RecruitScene extends Phaser.Scene {
         34,
         'Recrutar',
         () => {
-          updateSave((s) => ({ ...s, player: recruitWithFragments(s.player, n.id) }));
+          updateSave((s) => ({ ...s, player: recruitWithFragments(s.player, n.id, PROGRESSAO) }));
           this.scene.restart({
             selected: this.selected,
             lastResult: [`${n.name} entrou para o time!`],

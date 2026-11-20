@@ -64,7 +64,8 @@ export const DUPLICATE_FRAGMENTS: Record<Exclude<Rarity, 'raro'>, number> = {
   lendario: 50,
 };
 export const RARE_FRAGMENTS = 5;
-export const FRAGMENTS_TO_RECRUIT = 60;
+/** Fragmentos para recrutar um ninja (pesquisa de 2026: 80). */
+export const FRAGMENTS_TO_RECRUIT = 80;
 
 // ---------------------------------------------------------------- config
 

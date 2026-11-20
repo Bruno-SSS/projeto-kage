@@ -73,7 +73,11 @@ export function parseSave(
   );
   // Campos que surgiram depois (evolução dos ninjas): completa saves antigos.
   const ninjas = Object.fromEntries(
-    Object.keys(owned).map((id) => [id, r.player!.ninjas?.[id] ?? newNinjaProgress()]),
+    Object.keys(owned).map((id) => {
+      const p = r.player!.ninjas?.[id] ?? newNinjaProgress(cfg);
+      // ninjas de saves antigos sobem para a estrela inicial atual
+      return [id, { ...p, stars: Math.max(p.stars, cfg.ninjas.estrelaInicial) }];
+    }),
   );
   return {
     ...(r as SaveData),
@@ -137,7 +141,7 @@ export function saveFormation(placements: Placement[]): void {
 
 /** O ninja com nível e estrelas do jogador aplicados. */
 export function evolved(id: string): NinjaTemplate {
-  return effectiveTemplate(NINJAS[id], ninjaProgress(getSave().player, id), PROGRESSAO);
+  return effectiveTemplate(NINJAS[id], ninjaProgress(getSave().player, id, PROGRESSAO), PROGRESSAO);
 }
 
 /** Time do jogador pronto para a batalha, com a evolução de cada ninja. */

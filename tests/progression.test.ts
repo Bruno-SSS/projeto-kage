@@ -117,13 +117,13 @@ describe('recompensas do gacha e fragmentos', () => {
     expect(state.wallet.cupom).toBe(100);
   });
 
-  it('60 fragmentos recrutam o ninja', () => {
-    const { state } = grant(player(), { fragments: [{ ninjaId: 'cuca', amount: 65 }] }, cfg);
-    const after = recruitWithFragments(state, 'cuca');
+  it('80 fragmentos recrutam o ninja', () => {
+    const { state } = grant(player(), { fragments: [{ ninjaId: 'cuca', amount: 85 }] }, cfg);
+    const after = recruitWithFragments(state, 'cuca', cfg);
     expect(after.owned.cuca).toBe(true);
     expect(after.fragments.cuca).toBe(5);
-    expect(() => recruitWithFragments(after, 'cuca')).toThrow(/já tem/);
-    expect(() => recruitWithFragments(state, 'iara')).toThrow(/insuficientes/);
+    expect(() => recruitWithFragments(after, 'cuca', cfg)).toThrow(/já tem/);
+    expect(() => recruitWithFragments(state, 'iara', cfg)).toThrow(/insuficientes/);
   });
 });
 
