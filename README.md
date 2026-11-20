@@ -26,6 +26,7 @@ npm run build      # build de produção em dist/
 ```
 src/
   core/      regras do combate, sem gráficos (100% testável)
+  data/      ninjas e outros dados do jogo
   scenes/    telas do Phaser
 tests/       testes do core
 ```
@@ -38,14 +39,14 @@ tests/       testes do core
 
 ## Roteiro
 
-| Fase | Objetivo                                                       |
-| ---- | -------------------------------------------------------------- |
-| 0    | Infraestrutura, CI e deploy ✅                                 |
-| 1    | Motor de combate (formação, turnos, combos, chakra, elementos) |
-| 2    | Visual e jogabilidade da batalha                               |
-| 3    | Ninjas e arte originais                                        |
-| 4    | Campanha e progressão                                          |
-| 5    | Polimento e lançamento v1.0                                    |
-| 6    | Online (login, ranking, PvP assíncrono)                        |
+| Fase | Objetivo                                                          |
+| ---- | ----------------------------------------------------------------- |
+| 0    | Infraestrutura, CI e deploy ✅                                    |
+| 1    | Motor de combate (formação, turnos, combos, chakra, elementos) ✅ |
+| 2    | Visual e jogabilidade da batalha                                  |
+| 3    | Ninjas e arte originais                                           |
+| 4    | Campanha e progressão                                             |
+| 5    | Polimento e lançamento v1.0                                       |
+| 6    | Online (login, ranking, PvP assíncrono)                           |
 
 Todo o conteúdo (personagens, nomes, arte) é original.
