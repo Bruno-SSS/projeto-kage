@@ -1,0 +1,175 @@
+{
+  "_observacao": "Valores de referência da pesquisa de missões e progressão. Documentação: docs/progressao.md",
+  "nivel": {
+    "maximo": 100,
+    "tabelaXp": {
+      "1": 2000,
+      "2": 3000,
+      "3": 3500,
+      "4": 5000,
+      "5": 6000,
+      "6": 7000,
+      "7": 9000,
+      "8": 11000,
+      "9": 12000,
+      "10": 13000,
+      "11": 16713,
+      "12": 17908,
+      "13": 19103,
+      "14": 20297,
+      "15": 29849,
+      "16": 35819,
+      "17": 47761,
+      "18": 53730,
+      "19": 71640,
+      "20": 83581,
+      "35": 396929,
+      "36": 441258,
+      "49": 858620,
+      "50": 1050313,
+      "58": 1936273,
+      "61": 2426074,
+      "63": 2782586,
+      "64": 2969868,
+      "65": 3162992
+    },
+    "crescimentoAposTabela": 0.076,
+    "presentes": [
+      {
+        "nivel": 10,
+        "ryo": 5000
+      },
+      {
+        "nivel": 20,
+        "ryo": 10000
+      },
+      {
+        "nivel": 30,
+        "ryo": 25000,
+        "pergaminho": 1
+      },
+      {
+        "nivel": 40,
+        "ryo": 50000
+      },
+      {
+        "nivel": 50,
+        "ryo": 75000
+      },
+      {
+        "nivel": 60,
+        "ryo": 100000
+      },
+      {
+        "nivel": 70,
+        "ryo": 150000,
+        "pergaminho": 2
+      }
+    ]
+  },
+  "dia": {
+    "horaReset": 5,
+    "loginRyo": 5000
+  },
+  "quadro": {
+    "tamanho": 5,
+    "renovaMinutos": 30,
+    "maxPorDia": 10,
+    "maxRankSPorDia": 2,
+    "ranks": {
+      "D": {
+        "chance": 0.35,
+        "xp": 3000,
+        "ryo": 1000,
+        "fragmentos": 0,
+        "inimigos": 2,
+        "forcaInimigo": 0.7
+      },
+      "C": {
+        "chance": 0.28,
+        "xp": 5000,
+        "ryo": 2000,
+        "fragmentos": 0,
+        "inimigos": 3,
+        "forcaInimigo": 0.85
+      },
+      "B": {
+        "chance": 0.2,
+        "xp": 7000,
+        "ryo": 3000,
+        "fragmentos": 1,
+        "inimigos": 3,
+        "forcaInimigo": 1
+      },
+      "A": {
+        "chance": 0.12,
+        "xp": 12000,
+        "ryo": 5000,
+        "fragmentos": 2,
+        "inimigos": 4,
+        "forcaInimigo": 1.15
+      },
+      "S": {
+        "chance": 0.05,
+        "xp": 20000,
+        "ryo": 8000,
+        "fragmentos": 5,
+        "inimigos": 4,
+        "forcaInimigo": 1.35
+      }
+    }
+  },
+  "diarias": [
+    {
+      "id": "vencer-batalhas",
+      "nome": "Vencer 3 batalhas",
+      "atividade": "vitoria",
+      "quantidade": 3,
+      "xp": 30000,
+      "ryo": 5000
+    },
+    {
+      "id": "missoes-quadro",
+      "nome": "Concluir 3 missões do quadro",
+      "atividade": "missao",
+      "quantidade": 3,
+      "xp": 30000,
+      "ryo": 5000
+    },
+    {
+      "id": "recrutar",
+      "nome": "Recrutar 1 vez",
+      "atividade": "recrutamento",
+      "quantidade": 1,
+      "xp": 10000,
+      "cupom": 10
+    }
+  ],
+  "bonusSemanal": {
+    "0": [],
+    "1": [
+      {
+        "atividade": "historia",
+        "recurso": "xp",
+        "multiplicador": 2
+      }
+    ],
+    "2": [
+      {
+        "atividade": "missao",
+        "recurso": "xp",
+        "multiplicador": 2
+      }
+    ],
+    "3": [],
+    "4": [],
+    "5": [
+      {
+        "atividade": "missao",
+        "recurso": "ryo",
+        "multiplicador": 2
+      }
+    ],
+    "6": []
+  }
+}
