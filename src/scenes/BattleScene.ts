@@ -4,7 +4,7 @@ import { Battle } from '../core/battle';
 import type { Action, BattleEvent, FormationSlot, TeamId, Unit } from '../core/types';
 import { Button } from '../ui/Button';
 import { describeSkill } from '../ui/describe';
-import { NinjaToken } from '../ui/NinjaToken';
+import { Arena3D } from '../render3d/Arena3D';
 import { loadJSON, saveJSON } from '../ui/storage';
 import { COLORS, STATUS_LABELS, TEXT, textStyle } from '../ui/theme';
 
@@ -37,11 +37,14 @@ export interface BattleResult {
 }
 
 const SETTINGS_KEY = 'kage.battle';
-const CELL = 96;
-const GRID_TOP_Y = 165;
-/** x da coluna da frente de cada time; as demais se afastam do centro. */
-const FRONT_X: Record<TeamId, number> = { A: 380, B: 580 };
 const CHAKRA_BAR_W = 220;
+const HP_W = 64;
+
+/** Nome e barra de vida de um ninja, desenhados por cima do modelo 3D. */
+interface UnitHud {
+  container: Phaser.GameObjects.Container;
+  hpFill: Phaser.GameObjects.Rectangle;
+}
 
 interface Settings {
   fast: boolean;
@@ -51,7 +54,8 @@ interface Settings {
 export class BattleScene extends Phaser.Scene {
   private battle!: Battle;
   private data_!: BattleData;
-  private tokens = new Map<string, NinjaToken>();
+  private arena!: Arena3D;
+  private huds = new Map<string, UnitHud>();
   private settings: Settings = { fast: false, auto: false };
   private bestCombo = 0;
 
@@ -76,7 +80,7 @@ export class BattleScene extends Phaser.Scene {
 
   init(data: BattleData): void {
     this.data_ = data;
-    this.tokens = new Map();
+    this.huds = new Map();
     this.bestCombo = 0;
     this.pendingChoice = undefined;
     this.settings = loadJSON<Settings>(SETTINGS_KEY, { fast: false, auto: false });
@@ -89,48 +93,52 @@ export class BattleScene extends Phaser.Scene {
       this.data_.maxRounds ? { maxRounds: this.data_.maxRounds } : undefined,
     );
 
-    this.drawField();
+    // A batalha é desenhada em 3D atrás do canvas do Phaser, que só mostra o HUD.
+    this.arena = Arena3D.get();
+    this.arena.speed = this.speed;
+    for (const unit of this.battle.units) {
+      this.arena.addUnit(unit.uid, unit.template, unit.team, unit.position.row, unit.position.col);
+      this.huds.set(unit.uid, this.createUnitHud(unit));
+    }
+    this.arena.show(this.game.canvas);
+    this.cameras.main.setBackgroundColor('rgba(0,0,0,0)');
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.arena.hide());
+
     this.drawHud();
     this.drawPanel();
-    for (const unit of this.battle.units) {
-      const { x, y } = this.unitPosition(unit);
-      const token = new NinjaToken(this, x, y, unit.template, {
-        ring: unit.team === 'A' ? COLORS.teamA : COLORS.teamB,
-        showHp: true,
-      });
-      this.tokens.set(unit.uid, token);
-    }
-
     void this.run();
   }
 
-  // ---------------------------------------------------------------- layout
-
-  private unitPosition(unit: Unit): { x: number; y: number } {
-    const dir = unit.team === 'A' ? -1 : 1;
-    return {
-      x: FRONT_X[unit.team] + dir * unit.position.col * CELL,
-      y: GRID_TOP_Y + unit.position.row * CELL,
-    };
+  update(): void {
+    for (const [uid, hud] of this.huds) {
+      const { x, y } = this.arena.screenPos(uid);
+      hud.container.setPosition(x, y);
+    }
   }
 
-  private drawField(): void {
-    for (const team of ['A', 'B'] as const) {
-      const dir = team === 'A' ? -1 : 1;
-      for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 3; col++) {
-          this.add
-            .rectangle(
-              FRONT_X[team] + dir * col * CELL,
-              GRID_TOP_Y + row * CELL,
-              CELL - 10,
-              CELL - 10,
-            )
-            .setStrokeStyle(1, COLORS.border, 0.35);
-        }
-      }
-    }
-    this.add.rectangle(480, GRID_TOP_Y + CELL, 2, CELL * 3, COLORS.border, 0.4);
+  private createUnitHud(unit: Unit): UnitHud {
+    const color = unit.team === 'A' ? TEXT.teamA : TEXT.teamB;
+    const name = this.add
+      .text(0, -12, unit.template.name, textStyle(13, color, true))
+      .setOrigin(0.5)
+      .setStroke('#000000', 3);
+    const bg = this.add.rectangle(0, 4, HP_W, 7, 0x000000, 0.6);
+    const hpFill = this.add.rectangle(-HP_W / 2, 4, HP_W, 7, COLORS.hp).setOrigin(0, 0.5);
+    const container = this.add.container(0, 0, [name, bg, hpFill]).setDepth(10);
+    return { container, hpFill };
+  }
+
+  private setHp(uid: string, hp: number, maxHp: number): void {
+    const { hpFill } = this.huds.get(uid)!;
+    const ratio = Math.max(0, hp / maxHp);
+    this.tweens.add({ targets: hpFill, width: HP_W * ratio, duration: 250 });
+    hpFill.setFillStyle(ratio < 0.3 ? COLORS.hpLow : COLORS.hp);
+  }
+
+  /** Posição do ninja na tela, com deslocamento vertical. */
+  private at(uid: string, dy = 0): { x: number; y: number } {
+    const p = this.arena.screenPos(uid);
+    return { x: p.x, y: p.y + dy };
   }
 
   private drawHud(): void {
@@ -254,6 +262,7 @@ export class BattleScene extends Phaser.Scene {
 
   private toggleSpeed(): void {
     this.settings.fast = !this.settings.fast;
+    this.arena.speed = this.speed;
     saveJSON(SETTINGS_KEY, this.settings);
     this.refreshToggles();
   }
@@ -287,30 +296,25 @@ export class BattleScene extends Phaser.Scene {
     for (const e of events) await this.playEvent(e);
   }
 
-  private token(uid: string): NinjaToken {
-    return this.tokens.get(uid)!;
-  }
-
   private async playEvent(e: BattleEvent): Promise<void> {
     switch (e.type) {
       case 'round_start': {
         this.roundText.setText(`Rodada ${e.round}`);
         this.updateChakra();
-        for (const t of this.tokens.values()) t.setHighlighted(false);
+        this.arena.highlight(null);
         await this.banner(`Rodada ${e.round}`);
         break;
       }
       case 'turn_start': {
-        for (const t of this.tokens.values()) t.setHighlighted(false);
-        this.token(e.actor).setHighlighted(true);
+        this.arena.highlight(e.actor);
         this.skillText.setText('');
         await this.wait(120);
         break;
       }
       case 'skip': {
-        const t = this.token(e.actor);
-        t.setStunned(false);
-        this.floatText(t.x, t.y - 40, 'Atordoado: perde a vez', TEXT.muted, 14);
+        this.arena.setStunned(e.actor, false);
+        const p = this.at(e.actor, -18);
+        this.floatText(p.x, p.y, 'Atordoado: perde a vez', TEXT.muted, 14);
         await this.wait(550);
         break;
       }
@@ -325,39 +329,31 @@ export class BattleScene extends Phaser.Scene {
           .setColor(
             e.kind === 'chase' ? TEXT.accent : actor.team === 'A' ? TEXT.teamA : TEXT.teamB,
           );
-        await this.lunge(
-          this.token(e.actor),
-          e.targets.map((uid) => this.token(uid)),
-        );
+        await this.arena.lunge(e.actor, e.targets);
         break;
       }
       case 'chakra':
         this.updateChakra();
         break;
       case 'damage': {
-        const target = this.token(e.target);
         const unit = this.battle.unit(e.target);
-        target.setHp(e.hpAfter, unit.maxHp);
+        this.setHp(e.target, e.hpAfter, unit.maxHp);
         const color =
           e.elementMultiplier > 1 ? TEXT.good : e.elementMultiplier < 1 ? TEXT.bad : TEXT.main;
         const label = e.elementMultiplier > 1 ? `${e.amount}!` : `${e.amount}`;
-        this.floatText(target.x, target.y - 30, label, color, e.elementMultiplier > 1 ? 26 : 22);
-        await this.tween({ targets: target.orb, scale: 1.18, duration: 90, yoyo: true });
-        await this.wait(120);
+        const p = this.at(e.target, -26);
+        this.floatText(p.x, p.y, label, color, e.elementMultiplier > 1 ? 26 : 22);
+        await this.arena.hit(e.target);
         break;
       }
       case 'status': {
-        const t = this.token(e.target);
-        if (e.status === 'atordoado') t.setStunned(true);
-        this.floatText(t.x, t.y + 6, STATUS_LABELS[e.status], TEXT.accent, 15);
-        if (e.status === 'no_ar') {
-          await this.tween({ targets: t, y: t.y - 22, duration: 160, yoyo: true });
-        } else if (e.status === 'repelido' || e.status === 'derrubado') {
-          const dir = this.battle.unit(e.target).team === 'A' ? -1 : 1;
-          await this.tween({ targets: t, x: t.x + dir * 14, duration: 110, yoyo: true });
-        } else {
-          await this.wait(150);
-        }
+        if (e.status === 'atordoado') this.arena.setStunned(e.target, true);
+        const p = this.at(e.target, 40);
+        this.floatText(p.x, p.y, STATUS_LABELS[e.status], TEXT.accent, 15);
+        if (e.status === 'no_ar') await this.arena.air(e.target);
+        else if (e.status === 'derrubado') await this.arena.knockdown(e.target);
+        else if (e.status === 'repelido') await this.arena.pushed(e.target);
+        else await this.wait(150);
         break;
       }
       case 'combo': {
@@ -371,30 +367,15 @@ export class BattleScene extends Phaser.Scene {
         await this.wait(150);
         break;
       }
-      case 'death':
-        this.token(e.unit).die();
-        await this.wait(300);
+      case 'death': {
+        const hud = this.huds.get(e.unit)!;
+        this.tweens.add({ targets: hud.container, alpha: 0.25, duration: 300 });
+        await this.arena.die(e.unit);
         break;
+      }
       case 'battle_end':
         break;
     }
-  }
-
-  private async lunge(actor: NinjaToken, targets: NinjaToken[]): Promise<void> {
-    if (targets.length === 0) return;
-    const tx = targets.reduce((s, t) => s + t.x, 0) / targets.length;
-    const ty = targets.reduce((s, t) => s + t.y, 0) / targets.length;
-    const home = { x: actor.x, y: actor.y };
-    actor.setDepth(5);
-    await this.tween({
-      targets: actor,
-      x: home.x + (tx - home.x) * 0.35,
-      y: home.y + (ty - home.y) * 0.35,
-      duration: 140,
-      ease: 'Quad.easeIn',
-    });
-    void this.tween({ targets: actor, x: home.x, y: home.y, duration: 180, ease: 'Quad.easeOut' });
-    actor.setDepth(0);
   }
 
   private floatText(x: number, y: number, text: string, color: string, size: number): void {

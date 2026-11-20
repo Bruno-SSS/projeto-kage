@@ -34,3 +34,15 @@ body {
     display: block;
   }
 }
+
+/* O canvas do Phaser (HUD) fica por cima da arena 3D. */
+#app > canvas {
+  position: relative;
+  z-index: 1;
+}
+
+canvas.arena3d {
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+}

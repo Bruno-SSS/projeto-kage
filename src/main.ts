@@ -9,13 +9,14 @@ import { RecruitScene } from './scenes/RecruitScene';
 import { StoryScene } from './scenes/StoryScene';
 import { ResultScene } from './scenes/ResultScene';
 import { TitleScene } from './scenes/TitleScene';
-import { COLORS, HEIGHT, WIDTH } from './ui/theme';
+import { HEIGHT, WIDTH } from './ui/theme';
 import './style.css';
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'app',
-  backgroundColor: COLORS.bg,
+  // transparente: na batalha a arena 3D aparece por trás; nas outras telas o fundo vem da cena
+  transparent: true,
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
