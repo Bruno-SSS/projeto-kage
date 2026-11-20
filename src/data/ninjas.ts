@@ -11,7 +11,7 @@ export const NINJAS = {
     id: 'kaen',
     name: 'Kaen',
     element: 'fogo',
-    stats: { hp: 900, atk: 60, def: 30, spd: 90 },
+    stats: { hp: 300, atk: 60, def: 30, spd: 90 },
     basic: {
       id: 'kaen-golpe',
       name: 'Golpe Flamejante',
@@ -38,7 +38,7 @@ export const NINJAS = {
     id: 'hayate',
     name: 'Hayate',
     element: 'vento',
-    stats: { hp: 800, atk: 55, def: 25, spd: 110 },
+    stats: { hp: 270, atk: 55, def: 25, spd: 110 },
     basic: { id: 'hayate-golpe', name: 'Lâmina Leve', power: 1.0, pattern: 'single' },
     special: {
       id: 'hayate-vendaval',
@@ -60,7 +60,7 @@ export const NINJAS = {
     id: 'raiga',
     name: 'Raiga',
     element: 'raio',
-    stats: { hp: 750, atk: 65, def: 20, spd: 95 },
+    stats: { hp: 250, atk: 65, def: 20, spd: 95 },
     basic: { id: 'raiga-golpe', name: 'Agulha Elétrica', power: 0.9, pattern: 'back' },
     special: {
       id: 'raiga-lanca',
@@ -82,7 +82,7 @@ export const NINJAS = {
     id: 'iwao',
     name: 'Iwao',
     element: 'terra',
-    stats: { hp: 1300, atk: 45, def: 60, spd: 60 },
+    stats: { hp: 430, atk: 45, def: 60, spd: 60 },
     basic: {
       id: 'iwao-golpe',
       name: 'Punho de Pedra',
@@ -104,7 +104,7 @@ export const NINJAS = {
     id: 'minase',
     name: 'Minase',
     element: 'agua',
-    stats: { hp: 1000, atk: 50, def: 35, spd: 80 },
+    stats: { hp: 330, atk: 50, def: 35, spd: 80 },
     basic: { id: 'minase-golpe', name: 'Onda Cortante', power: 0.7, pattern: 'row' },
     special: {
       id: 'minase-mare',

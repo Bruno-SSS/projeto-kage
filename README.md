@@ -43,7 +43,7 @@ tests/       testes do core
 | ---- | ----------------------------------------------------------------- |
 | 0    | Infraestrutura, CI e deploy ✅                                    |
 | 1    | Motor de combate (formação, turnos, combos, chakra, elementos) ✅ |
-| 2    | Visual e jogabilidade da batalha                                  |
+| 2    | Visual e jogabilidade da batalha ✅                               |
 | 3    | Ninjas e arte originais                                           |
 | 4    | Campanha e progressão                                             |
 | 5    | Polimento e lançamento v1.0                                       |
