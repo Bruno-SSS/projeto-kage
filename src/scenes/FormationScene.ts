@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { GRID_SIZE, MAX_TEAM_SIZE } from '../core/formation';
 import type { NinjaTemplate } from '../core/types';
 import { DEFAULT_FORMATION, ENEMY_FORMATION } from '../data/formations';
-import { NINJAS } from '../data/ninjas';
+import { NINJAS, ROSTER } from '../data/ninjas';
 import { Button } from '../ui/Button';
 import { describeNinja } from '../ui/describe';
 import {
@@ -22,8 +22,6 @@ const CELL = 92;
 const GRID_FRONT_X = 390;
 const GRID_TOP_Y = 150;
 const TAP_THRESHOLD = 8;
-
-const ROSTER: NinjaTemplate[] = Object.values(NINJAS);
 
 interface Drag {
   id: string;
@@ -121,8 +119,11 @@ export class FormationScene extends Phaser.Scene {
 
   private drawRoster(): void {
     this.add.text(510, 70, 'Elenco', textStyle(16, TEXT.muted, true));
+    // A lista se ajusta para caber entre o título e o painel de informações.
+    const step = Math.min(66, 340 / ROSTER.length);
+    const scale = Math.min(1, (step - 6) / 58);
     ROSTER.forEach((ninja, i) => {
-      const card = this.add.container(720, 122 + i * 66);
+      const card = this.add.container(720, 92 + step / 2 + i * step).setScale(scale);
       const bg = this.add.rectangle(0, 0, 420, 58, COLORS.panel).setStrokeStyle(1, COLORS.border);
       const token = new NinjaToken(this, -180, 0, ninja).setScale(0.75);
       const name = this.add.text(-145, -18, ninja.name, textStyle(17, TEXT.main, true));
@@ -151,7 +152,7 @@ export class FormationScene extends Phaser.Scene {
     for (const t of this.placedTokens) t.destroy();
     this.placedTokens = this.placements.map(({ id, row, col }) => {
       const { x, y } = this.cellCenter(row, col);
-      const token = new NinjaToken(this, x, y, NINJAS[id as keyof typeof NINJAS], {
+      const token = new NinjaToken(this, x, y, NINJAS[id], {
         ring: COLORS.teamA,
       });
       const name = this.add
@@ -182,7 +183,7 @@ export class FormationScene extends Phaser.Scene {
     if (fromCell) {
       token = this.placedTokens.find((t) => t.ninja.id === id)!;
     } else {
-      token = new NinjaToken(this, p.x, p.y, NINJAS[id as keyof typeof NINJAS], {
+      token = new NinjaToken(this, p.x, p.y, NINJAS[id], {
         ring: COLORS.teamA,
       }).setAlpha(0);
     }

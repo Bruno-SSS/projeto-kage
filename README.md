@@ -26,10 +26,15 @@ npm run build      # build de produção em dist/
 ```
 src/
   core/      regras do combate, sem gráficos (100% testável)
-  data/      ninjas e outros dados do jogo
+  data/      dados do jogo (ninjas em ninjas.json, formações)
   scenes/    telas do Phaser
 tests/       testes do core
 ```
+
+## Editar os ninjas
+
+O elenco fica em `src/data/ninjas.json`, separado do código. Veja [docs/elenco.md](docs/elenco.md)
+para a descrição de cada campo; `npm test` valida o arquivo.
 
 ## Fluxo de trabalho
 

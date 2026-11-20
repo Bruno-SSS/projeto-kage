@@ -70,9 +70,11 @@ describe('dados das formações', () => {
 
 describe('descrições', () => {
   it('descreve golpes e perseguições', () => {
-    expect(describeSkill(NINJAS.kaen.basic)).toBe('Golpe Flamejante (um alvo, derruba)');
-    expect(describeSkill(NINJAS.raiga.special)).toBe('Lança Trovão (um alvo, atordoa, 75 chakra)');
-    expect(describeChase(NINJAS.kaen.chase)).toBe('Queda em Brasa (alvo no ar → derruba)');
-    expect(describeChase(NINJAS.iwao.chase)).toBe('Esmagar (alvo derrubado → finaliza)');
+    expect(describeSkill(NINJAS.boitata.basic)).toBe('Mordida de Fogo (um alvo, derruba)');
+    expect(describeSkill(NINJAS.cuca.special)).toBe(
+      'Raio do Caldeirão (um alvo, atordoa, 75 chakra)',
+    );
+    expect(describeChase(NINJAS.boitata.chase!)).toBe('Queda Flamejante (alvo no ar → derruba)');
+    expect(describeChase(NINJAS.curupira.chase!)).toBe('Raízes (alvo derrubado → finaliza)');
   });
 });
