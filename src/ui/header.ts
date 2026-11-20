@@ -1,5 +1,7 @@
 import type Phaser from 'phaser';
 import { xpToNext } from '../core/progression';
+import { currentStamina } from '../core/story';
+import { HISTORIA } from '../data/historia';
 import { PROGRESSAO } from '../data/progressao';
 import { Button } from './Button';
 import { getSave } from './session';
@@ -32,7 +34,7 @@ export function drawHeader(scene: Phaser.Scene, title: string, backTo?: string):
     .text(
       936,
       50,
-      `Ryo ${fmt(w.ryo)} · Cupons ${fmt(w.cupom)} · Pergaminhos ${fmt(w.pergaminho)}`,
+      `Energia ${currentStamina(player, new Date(), HISTORIA)} · Ryo ${fmt(w.ryo)} · Cupons ${fmt(w.cupom)} · Pergaminhos ${fmt(w.pergaminho)}`,
       textStyle(13, TEXT.muted),
     )
     .setOrigin(1, 0);

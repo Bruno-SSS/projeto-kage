@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { completeMission, type Grant } from '../core/progression';
+import { completeStage } from '../core/story';
+import { HISTORIA } from '../data/historia';
 import { NINJAS, ROSTER } from '../data/ninjas';
 import { PROGRESSAO } from '../data/progressao';
 import { Button } from '../ui/Button';
@@ -13,6 +15,21 @@ const TITLES = {
   B: { text: 'Derrota', color: TEXT.teamB },
   draw: { text: 'Empate', color: TEXT.muted },
 };
+
+/** Lista legível do que uma concessão deu. */
+function describeGrant(g: Grant): string[] {
+  const lines = [`+${fmt(g.xp ?? 0)} XP · +${fmt(g.ryo ?? 0)} ryo`];
+  if (g.pergaminho) lines.push(`+${g.pergaminho} pergaminho(s)`);
+  if (g.cupom) lines.push(`+${g.cupom} cupons`);
+  for (const f of g.fragments ?? []) {
+    lines.push(`+${f.amount} fragmento(s) de ${NINJAS[f.ninjaId]?.name ?? f.ninjaId}`);
+  }
+  for (const [id, n] of Object.entries(g.food ?? {})) {
+    lines.push(`+${n} ${PROGRESSAO.ninjas.comida[id]?.nome ?? id}`);
+  }
+  if (g.teamXp?.ids.length) lines.push(`Ninjas do time: +${fmt(g.teamXp.amount)} XP cada`);
+  return lines;
+}
 
 export class ResultScene extends Phaser.Scene {
   private result!: BattleResult;
@@ -48,7 +65,9 @@ export class ResultScene extends Phaser.Scene {
 
     const lines = data.missionId
       ? this.settleMission(data.missionId, outcome === 'A')
-      : ['Treino: sem recompensa.'];
+      : data.stageId
+        ? this.settleStage(data.stageId, outcome === 'A')
+        : ['Treino: sem recompensa.'];
     this.add
       .text(480, 270, lines, { ...textStyle(17, TEXT.main), align: 'center', lineSpacing: 6 })
       .setOrigin(0.5, 0);
@@ -71,6 +90,39 @@ export class ResultScene extends Phaser.Scene {
         fontSize: 18,
       },
     );
+  }
+
+  /** Paga a fase da história (só na vitória) e descreve estrelas e prêmios. */
+  private settleStage(stageId: string, won: boolean): string[] {
+    if (!won) return ['Fase não vencida. A energia foi devolvida.'];
+    let lines: string[] = [];
+    try {
+      updateSave((s) => {
+        const r = completeStage(
+          s.player,
+          stageId,
+          true,
+          this.result.deaths,
+          new Date(),
+          HISTORIA,
+          PROGRESSAO,
+          this.result.data.teamA.map((slot) => slot.ninja.id),
+        );
+        lines = [
+          `${'★'.repeat(r.stars)}${'☆'.repeat(3 - r.stars)}  (${this.result.deaths} ninja(s) caído(s))`,
+          ...describeGrant(r.reward),
+        ];
+        if (r.firstClear) lines.push('Primeira vitória nesta fase!');
+        if (r.chapterCompleted) lines.push('Capítulo concluído!');
+        if (r.chapterPerfect) lines.push('Capítulo com 3★ em todas as fases!');
+        if (r.levelUps.length > 0)
+          lines.push(`Subiu para o nível ${r.levelUps[r.levelUps.length - 1]}!`);
+        return { ...s, player: r.state };
+      });
+    } catch (e) {
+      return [`Recompensa não paga: ${(e as Error).message}`];
+    }
+    return lines;
   }
 
   /** Paga a missão (só na vitória) e descreve o que o jogador ganhou. */

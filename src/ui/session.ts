@@ -9,9 +9,11 @@ import {
   type PlayerState,
   type ProgressionConfig,
 } from '../core/progression';
+import { addStamina, newStoryProgress, type StoryConfig } from '../core/story';
 import type { NinjaTemplate } from '../core/types';
 import { DEFAULT_FORMATION } from '../data/formations';
 import { NINJAS, ROSTER } from '../data/ninjas';
+import { HISTORIA } from '../data/historia';
 import { PROGRESSAO } from '../data/progressao';
 import { placeNinja, toSlots, type Placement } from './formationState';
 import { loadJSON, saveJSON } from './storage';
@@ -38,9 +40,15 @@ export function starterIds(roster: NinjaTemplate[]): string[] {
   return roster.filter((n) => n.rarity !== 'lendario' && n.rarity !== 'raro').map((n) => n.id);
 }
 
-export function freshSave(now: Date, roster: NinjaTemplate[], cfg: ProgressionConfig): SaveData {
+export function freshSave(
+  now: Date,
+  roster: NinjaTemplate[],
+  cfg: ProgressionConfig,
+  story: StoryConfig = HISTORIA,
+): SaveData {
   const player = newPlayer(starterIds(roster), now, cfg);
   player.wallet.pergaminho = STARTING_SCROLLS;
+  player.stamina = { value: story.energia.inicial, at: now.getTime() };
   return { version: SAVE_VERSION, createdAt: now.getTime(), player, pity: newPityState() };
 }
 
@@ -81,7 +89,14 @@ export function parseSave(
   );
   return {
     ...(r as SaveData),
-    player: { ...r.player, owned, ninjas, food: r.player.food ?? {} },
+    player: {
+      ...r.player,
+      owned,
+      ninjas,
+      food: r.player.food ?? {},
+      story: r.player.story ?? newStoryProgress(),
+      stamina: r.player.stamina ?? { value: HISTORIA.energia.inicial, at: now.getTime() },
+    },
   };
 }
 
@@ -104,7 +119,10 @@ export function tick(now = new Date()): { loginGranted: boolean } {
   updateSave((s) => {
     const day = startDay(s.player, now, PROGRESSAO);
     loginGranted = day.loginGranted;
-    return { ...s, player: refreshBoard(day.state, now, PROGRESSAO, Math.random) };
+    let player = refreshBoard(day.state, now, PROGRESSAO, Math.random);
+    // energia extra do dia, junto com o login diário
+    if (loginGranted) player = addStamina(player, HISTORIA.energia.diaria, now, HISTORIA);
+    return { ...s, player };
   });
   return { loginGranted };
 }

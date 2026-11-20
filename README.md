@@ -31,14 +31,17 @@ src/
 tests/       testes do core
 ```
 
-## Editar os ninjas
+## Editar o conteúdo
 
-O elenco fica em `src/data/ninjas.json`, separado do código. Veja [docs/elenco.md](docs/elenco.md)
-para a descrição de cada campo; `npm test` valida o arquivo.
+Todo o conteúdo fica em arquivos de dados, separado do código; `npm test` valida tudo.
+
+- Ninjas: `src/data/ninjas.json` ([docs/elenco.md](docs/elenco.md))
+- Progressão, missões e evolução: `src/data/progressao.json` ([docs/progressao.md](docs/progressao.md))
+- História: `src/data/historia.json` ([docs/historia.md](docs/historia.md))
 
 ## Fluxo de trabalho
 
-- `main` é protegida: todo trabalho entra por Pull Request a partir de uma branch `feat/*`.
+- Todo trabalho entra na `main` por Pull Request a partir de uma branch `feat/*`.
 - O CI roda formatação, lint, testes e build em cada PR.
 - Cada merge na `main` publica o jogo automaticamente.
 
@@ -49,8 +52,8 @@ para a descrição de cada campo; `npm test` valida o arquivo.
 | 0    | Infraestrutura, CI e deploy ✅                                    |
 | 1    | Motor de combate (formação, turnos, combos, chakra, elementos) ✅ |
 | 2    | Visual e jogabilidade da batalha ✅                               |
-| 3    | Ninjas e arte originais                                           |
-| 4    | Campanha e progressão                                             |
+| 3    | Ninjas originais (elenco editável) ✅ · arte 3D depois            |
+| 4    | Progressão, gacha, evolução e modo história ✅                    |
 | 5    | Polimento e lançamento v1.0                                       |
 | 6    | Online (login, ranking, PvP assíncrono)                           |
 

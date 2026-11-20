@@ -1,4 +1,5 @@
 import { FRAGMENTS_TO_RECRUIT, seededRng, type Reward } from './gacha';
+import type { StoryProgress } from './story';
 import type { FormationSlot, NinjaTemplate, Position } from './types';
 
 /**
@@ -109,6 +110,9 @@ export interface PlayerState {
   /** Nível, XP e estrelas de cada ninja que o jogador tem. */
   ninjas: Record<string, NinjaProgress>;
   food: FoodBag;
+  story: StoryProgress;
+  /** Energia do modo história e o instante da última atualização (ms). */
+  stamina: { value: number; at: number };
   /** Dia de jogo corrente (vira às `horaReset` de Brasília), ex. "2026-11-20". */
   day: string;
   daily: {
@@ -177,6 +181,8 @@ export function newPlayer(starters: string[], now: Date, cfg: ProgressionConfig)
     owned: Object.fromEntries(starters.map((id) => [id, true])),
     ninjas: Object.fromEntries(starters.map((id) => [id, newNinjaProgress(cfg)])),
     food: {},
+    story: { stars: {}, rewarded: [], perfect: [] },
+    stamina: { value: 0, at: now.getTime() },
     day: dayKey(now, cfg),
     daily: { missionsDone: 0, rankSDone: 0, progress: {}, claimed: [] },
     board: { slot: -1, missions: [] },

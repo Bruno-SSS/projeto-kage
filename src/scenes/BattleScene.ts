@@ -13,6 +13,8 @@ export interface BattleData {
   teamB: FormationSlot[];
   /** Missão do quadro que esta luta resolve (paga recompensa se vencer). */
   missionId?: string;
+  /** Fase da história que esta luta resolve. */
+  stageId?: string;
   /** Cena para onde voltar depois do resultado. */
   returnTo?: string;
 }
@@ -21,6 +23,8 @@ export interface BattleResult {
   outcome: Battle['outcome'];
   rounds: number;
   bestCombo: number;
+  /** Ninjas do jogador caídos no fim da luta. */
+  deaths: number;
   data: BattleData;
 }
 
@@ -201,6 +205,7 @@ export class BattleScene extends Phaser.Scene {
       outcome: battle.outcome,
       rounds: battle.round,
       bestCombo: this.bestCombo,
+      deaths: battle.units.filter((u) => u.team === 'A' && u.hp <= 0).length,
       data: this.data_,
     };
     this.scene.start('Result', result);
