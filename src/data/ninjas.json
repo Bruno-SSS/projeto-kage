@@ -1,0 +1,159 @@
+{
+  "$schema": "./ninjas.schema.json",
+  "ninjas": [
+    {
+      "id": "boitata",
+      "name": "Boitatá",
+      "element": "fogo",
+      "rarity": "epico",
+      "observacao": "",
+      "stats": { "hp": 300, "atk": 60, "def": 30, "spd": 90 },
+      "basic": {
+        "id": "boitata-mordida",
+        "name": "Mordida de Fogo",
+        "power": 1.0,
+        "pattern": "single",
+        "applies": "derrubado"
+      },
+      "special": {
+        "id": "boitata-serpente",
+        "name": "Serpente de Chamas",
+        "power": 1.6,
+        "pattern": "row",
+        "chakraCost": 50
+      },
+      "chase": {
+        "id": "boitata-queda",
+        "name": "Queda Flamejante",
+        "power": 0.8,
+        "trigger": "no_ar",
+        "applies": "derrubado"
+      },
+      "visual": { "cor": "#FF6A2B" }
+    },
+    {
+      "id": "saci",
+      "name": "Saci",
+      "element": "vento",
+      "rarity": "epico",
+      "observacao": "",
+      "stats": { "hp": 260, "atk": 55, "def": 25, "spd": 115 },
+      "basic": { "id": "saci-rasteira", "name": "Rasteira", "power": 1.0, "pattern": "single" },
+      "special": {
+        "id": "saci-redemoinho",
+        "name": "Redemoinho",
+        "power": 1.4,
+        "pattern": "column",
+        "applies": "no_ar",
+        "chakraCost": 50
+      },
+      "chase": {
+        "id": "saci-pulo",
+        "name": "Pulo de Uma Perna",
+        "power": 0.7,
+        "trigger": "derrubado",
+        "applies": "no_ar"
+      },
+      "visual": { "cor": "#7FE3B0" }
+    },
+    {
+      "id": "iara",
+      "name": "Iara",
+      "element": "agua",
+      "rarity": "lendario",
+      "observacao": "",
+      "stats": { "hp": 330, "atk": 50, "def": 35, "spd": 80 },
+      "basic": { "id": "iara-onda", "name": "Onda do Rio", "power": 0.7, "pattern": "row" },
+      "special": {
+        "id": "iara-canto",
+        "name": "Canto da Iara",
+        "power": 1.0,
+        "pattern": "all",
+        "stuns": true,
+        "chakraCost": 100
+      },
+      "chase": {
+        "id": "iara-correnteza",
+        "name": "Correnteza",
+        "power": 0.7,
+        "trigger": "repelido",
+        "applies": "no_ar"
+      },
+      "visual": { "cor": "#4DA6FF" }
+    },
+    {
+      "id": "curupira",
+      "name": "Curupira",
+      "element": "terra",
+      "rarity": "epico",
+      "observacao": "",
+      "stats": { "hp": 430, "atk": 45, "def": 60, "spd": 60 },
+      "basic": {
+        "id": "curupira-pisada",
+        "name": "Pisada Invertida",
+        "power": 0.9,
+        "pattern": "single",
+        "applies": "repelido"
+      },
+      "special": {
+        "id": "curupira-furia",
+        "name": "Fúria da Mata",
+        "power": 0.8,
+        "pattern": "all",
+        "applies": "repelido",
+        "chakraCost": 75
+      },
+      "chase": { "id": "curupira-raizes", "name": "Raízes", "power": 0.6, "trigger": "derrubado" },
+      "visual": { "cor": "#B08A5A" }
+    },
+    {
+      "id": "cuca",
+      "name": "Cuca",
+      "element": "raio",
+      "rarity": "lendario",
+      "observacao": "",
+      "stats": { "hp": 250, "atk": 65, "def": 20, "spd": 95 },
+      "basic": {
+        "id": "cuca-feitico",
+        "name": "Feitiço Faiscante",
+        "power": 0.9,
+        "pattern": "back"
+      },
+      "special": {
+        "id": "cuca-caldeirao",
+        "name": "Raio do Caldeirão",
+        "power": 2.2,
+        "pattern": "single",
+        "stuns": true,
+        "chakraCost": 75
+      },
+      "chase": {
+        "id": "cuca-praga",
+        "name": "Praga Elétrica",
+        "power": 0.9,
+        "trigger": "repelido",
+        "applies": "derrubado"
+      },
+      "visual": { "cor": "#FFE14D" }
+    },
+    {
+      "id": "mapinguari",
+      "name": "Mapinguari",
+      "element": "terra",
+      "rarity": "epico",
+      "observacao": "",
+      "stats": { "hp": 480, "atk": 55, "def": 45, "spd": 50 },
+      "basic": { "id": "mapinguari-patada", "name": "Patada", "power": 1.1, "pattern": "single" },
+      "special": {
+        "id": "mapinguari-rugido",
+        "name": "Rugido da Floresta",
+        "power": 2.0,
+        "pattern": "single",
+        "applies": "derrubado",
+        "chakraCost": 50
+      },
+      "chase": { "id": "mapinguari-agarrao", "name": "Agarrão", "power": 1.0, "trigger": "no_ar" },
+      "visual": { "cor": "#8B5A2B" }
+    }
+  ]
+}

@@ -61,15 +61,33 @@ export interface Stats {
   spd: number;
 }
 
-/** Definição estática de um ninja (dados do jogo). */
+export type Rarity = 'raro' | 'epico' | 'lendario';
+
+/** Arquivos de arte do ninja (usados pela interface, ignorados pelo motor). */
+export interface NinjaVisual {
+  /** Cor de assinatura em hexadecimal, ex. "#FF6A2B". */
+  cor?: string;
+  /** Caminho do modelo 3D (ex. .glb). */
+  modelo?: string;
+  /** Retrato para o cut-in do especial. */
+  retrato?: string;
+  /** Clipe de animação → arquivo ou nome do clipe dentro do modelo. */
+  animacoes?: Record<string, string>;
+}
+
+/** Definição estática de um ninja (dados do jogo, editáveis em src/data/ninjas.json). */
 export interface NinjaTemplate {
   id: string;
   name: string;
   element: Element;
+  rarity?: Rarity;
   stats: Stats;
   basic: Skill;
   special: SpecialSkill;
   chase?: ChaseSkill;
+  /** Anotação livre de quem edita o elenco. O jogo não usa. */
+  observacao?: string;
+  visual?: NinjaVisual;
 }
 
 /** Um ninja escalado em uma formação. */
@@ -80,7 +98,7 @@ export interface FormationSlot {
 
 /** Estado de um ninja durante a batalha. */
 export interface Unit {
-  /** Identificador único na batalha, ex. "A:kaen". */
+  /** Identificador único na batalha, ex. "A:boitata". */
   uid: string;
   team: TeamId;
   template: NinjaTemplate;

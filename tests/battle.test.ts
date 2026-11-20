@@ -188,16 +188,16 @@ describe('Battle: controle e fim', () => {
 
 describe('Battle: elenco de exemplo', () => {
   const timeA = () => [
-    slot(NINJAS.kaen, 0, 0),
-    slot(NINJAS.hayate, 1, 0),
-    slot(NINJAS.iwao, 2, 0),
-    slot(NINJAS.raiga, 1, 2),
+    slot(NINJAS.boitata, 0, 0),
+    slot(NINJAS.saci, 1, 0),
+    slot(NINJAS.curupira, 2, 0),
+    slot(NINJAS.cuca, 1, 2),
   ];
   const timeB = () => [
-    slot(NINJAS.minase, 0, 0),
-    slot(NINJAS.iwao, 1, 0),
-    slot(NINJAS.raiga, 2, 1),
-    slot(NINJAS.hayate, 1, 2),
+    slot(NINJAS.iara, 0, 0),
+    slot(NINJAS.mapinguari, 1, 0),
+    slot(NINJAS.cuca, 2, 1),
+    slot(NINJAS.saci, 1, 2),
   ];
 
   it('uma batalha automática termina e é determinística', () => {
@@ -207,8 +207,8 @@ describe('Battle: elenco de exemplo', () => {
     expect(first.at(-1)?.type).toBe('battle_end');
   });
 
-  it('o combo planejado do elenco acontece (Kaen → Hayate → Kaen → Iwao)', () => {
-    // Time A só usa básicos, para o Kaen abrir o combo com o golpe que derruba
+  it('o combo planejado do elenco acontece (Boitatá → Saci → Boitatá → Curupira)', () => {
+    // Time A só usa básicos, para o Boitatá abrir o combo com o golpe que derruba
     const events = runAutoBattle(new Battle(timeA(), timeB()), { A: () => ({ type: 'basic' }) });
     const chains: string[][] = [];
     let current: string[] = [];
@@ -218,6 +218,6 @@ describe('Battle: elenco de exemplo', () => {
         current.push(e.actor);
       }
     }
-    expect(chains).toContainEqual(['A:hayate', 'A:kaen', 'A:iwao']);
+    expect(chains).toContainEqual(['A:saci', 'A:boitata', 'A:curupira']);
   });
 });

@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Elenco do Projeto Kage",
+  "description": "Ninjas do jogo. Documentação completa em docs/elenco.md.",
+  "type": "object",
+  "required": ["ninjas"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "ninjas": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/ninja" } }
+  },
+  "definitions": {
+    "state": {
+      "description": "Estado que abre perseguição: derrubado, no_ar ou repelido.",
+      "enum": ["derrubado", "no_ar", "repelido"]
+    },
+    "pattern": {
+      "description": "single = um alvo da frente; row = linha; column = coluna da frente; back = retaguarda; all = todos.",
+      "enum": ["single", "row", "column", "back", "all"]
+    },
+    "skill": {
+      "type": "object",
+      "required": ["id", "name", "power", "pattern"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "description": "Único no arquivo inteiro." },
+        "name": { "type": "string", "minLength": 1 },
+        "power": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Multiplicador do ATQ."
+        },
+        "pattern": { "$ref": "#/definitions/pattern" },
+        "applies": { "$ref": "#/definitions/state" },
+        "stuns": { "type": "boolean", "description": "Alvo perde a próxima ação." }
+      }
+    },
+    "ninja": {
+      "type": "object",
+      "required": ["id", "name", "element", "stats", "basic", "special"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "name": { "type": "string", "minLength": 1 },
+        "element": { "enum": ["fogo", "vento", "raio", "terra", "agua"] },
+        "rarity": { "enum": ["raro", "epico", "lendario"] },
+        "observacao": { "type": "string", "description": "Anotação livre. O jogo não usa." },
+        "stats": {
+          "type": "object",
+          "required": ["hp", "atk", "def", "spd"],
+          "additionalProperties": false,
+          "properties": {
+            "hp": { "type": "integer", "minimum": 1, "description": "Vida." },
+            "atk": { "type": "number", "minimum": 0, "description": "Ataque." },
+            "def": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Defesa: 100 corta o dano pela metade."
+            },
+            "spd": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Velocidade: quem tem mais age primeiro."
+            }
+          }
+        },
+        "basic": { "$ref": "#/definitions/skill" },
+        "special": {
+          "allOf": [{ "$ref": "#/definitions/skill" }],
+          "required": ["chakraCost"],
+          "properties": {
+            "id": {},
+            "name": {},
+            "power": {},
+            "pattern": {},
+            "applies": {},
+            "stuns": {},
+            "chakraCost": { "type": "number", "exclusiveMinimum": 0, "maximum": 100 }
+          },
+          "additionalProperties": false
+        },
+        "chase": {
+          "type": "object",
+          "required": ["id", "name", "power", "trigger"],
+          "additionalProperties": false,
+          "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string", "minLength": 1 },
+            "power": { "type": "number", "exclusiveMinimum": 0 },
+            "trigger": { "$ref": "#/definitions/state" },
+            "applies": { "$ref": "#/definitions/state" }
+          }
+        },
+        "visual": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cor": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+            "modelo": { "type": "string", "description": "Caminho do modelo 3D (.glb)." },
+            "retrato": { "type": "string", "description": "Imagem do cut-in do especial." },
+            "animacoes": {
+              "type": "object",
+              "additionalProperties": { "type": "string" },
+              "description": "Clipe → arquivo ou nome do clipe no modelo (idle, run, cast, attack, hit, knockdown, air, pushed, death)."
+            }
+          }
+        }
+      }
+    }
+  }
+}
