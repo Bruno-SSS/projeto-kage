@@ -88,6 +88,7 @@ export class ResultScene extends Phaser.Scene {
           PROGRESSAO,
           ROSTER,
           Math.random,
+          this.result.data.teamA.map((slot) => slot.ninja.id),
         );
         reward = r.reward;
         levelUps = r.levelUps;
@@ -100,6 +101,11 @@ export class ResultScene extends Phaser.Scene {
     for (const f of reward.fragments ?? []) {
       lines.push(`+${f.amount} fragmento(s) de ${NINJAS[f.ninjaId]?.name ?? f.ninjaId}`);
     }
+    for (const [id, n] of Object.entries(reward.food ?? {})) {
+      lines.push(`+${n} ${PROGRESSAO.ninjas.comida[id]?.nome ?? id}`);
+    }
+    if (reward.teamXp?.ids.length)
+      lines.push(`Ninjas do time: +${fmt(reward.teamXp.amount)} XP cada`);
     if (levelUps.length > 0) lines.push(`Subiu para o nível ${levelUps[levelUps.length - 1]}!`);
     return lines;
   }

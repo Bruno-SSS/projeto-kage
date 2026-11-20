@@ -48,6 +48,7 @@ export class HubScene extends Phaser.Scene {
         () => this.scene.start('Recruit'),
       ],
       ['Formação', `${teamSize} no time · ${owned} ninjas`, () => this.scene.start('Formation')],
+      ['Ninjas', 'nível, comida e estrelas', () => this.scene.start('Ninjas')],
       [
         'Treino',
         'luta sem recompensa',

@@ -4,6 +4,7 @@ import { DailyScene } from './scenes/DailyScene';
 import { FormationScene } from './scenes/FormationScene';
 import { HubScene } from './scenes/HubScene';
 import { MissionsScene } from './scenes/MissionsScene';
+import { NinjasScene } from './scenes/NinjasScene';
 import { RecruitScene } from './scenes/RecruitScene';
 import { ResultScene } from './scenes/ResultScene';
 import { TitleScene } from './scenes/TitleScene';
@@ -25,6 +26,7 @@ const game = new Phaser.Game({
     HubScene,
     FormationScene,
     MissionsScene,
+    NinjasScene,
     DailyScene,
     RecruitScene,
     BattleScene,

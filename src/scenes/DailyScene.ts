@@ -27,6 +27,9 @@ export class DailyScene extends Phaser.Scene {
           task.ryo && `${fmt(task.ryo)} ryo`,
           task.cupom && `${fmt(task.cupom)} cupons`,
           task.pergaminho && `${fmt(task.pergaminho)} pergaminhos`,
+          ...Object.entries(task.comida ?? {}).map(
+            ([id, n]) => `${n} ${PROGRESSAO.ninjas.comida[id]?.nome ?? id}`,
+          ),
         ]
           .filter(Boolean)
           .join(' · ');

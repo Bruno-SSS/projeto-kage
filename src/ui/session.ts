@@ -1,6 +1,8 @@
+import { effectiveTemplate, ninjaProgress } from '../core/evolution';
 import { newPityState, type PityState } from '../core/gacha';
 import { GRID_SIZE } from '../core/formation';
 import {
+  newNinjaProgress,
   newPlayer,
   refreshBoard,
   startDay,
@@ -69,7 +71,14 @@ export function parseSave(
       .filter((id) => ids.has(id))
       .map((id) => [id, true]),
   );
-  return { ...(r as SaveData), player: { ...r.player, owned } };
+  // Campos que surgiram depois (evolução dos ninjas): completa saves antigos.
+  const ninjas = Object.fromEntries(
+    Object.keys(owned).map((id) => [id, r.player!.ninjas?.[id] ?? newNinjaProgress()]),
+  );
+  return {
+    ...(r as SaveData),
+    player: { ...r.player, owned, ninjas, food: r.player.food ?? {} },
+  };
 }
 
 let current: SaveData | undefined;
@@ -98,7 +107,7 @@ export function tick(now = new Date()): { loginGranted: boolean } {
 
 export function ownedRoster(): NinjaTemplate[] {
   const { owned } = getSave().player;
-  return ROSTER.filter((n) => owned[n.id]);
+  return ROSTER.filter((n) => owned[n.id]).map((n) => evolved(n.id));
 }
 
 /** Mantém só ninjas que o jogador tem, em casas válidas, até o limite do time. */
@@ -126,6 +135,13 @@ export function saveFormation(placements: Placement[]): void {
   saveJSON(FORMATION_KEY, placements);
 }
 
+/** O ninja com nível e estrelas do jogador aplicados. */
+export function evolved(id: string): NinjaTemplate {
+  return effectiveTemplate(NINJAS[id], ninjaProgress(getSave().player, id), PROGRESSAO);
+}
+
+/** Time do jogador pronto para a batalha, com a evolução de cada ninja. */
 export function playerTeam() {
-  return toSlots(loadFormation(), NINJAS);
+  const evolvedRoster = Object.fromEntries(loadFormation().map((p) => [p.id, evolved(p.id)]));
+  return toSlots(loadFormation(), evolvedRoster);
 }
