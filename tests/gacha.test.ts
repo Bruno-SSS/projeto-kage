@@ -14,6 +14,7 @@ import {
   ROTATION_EPOCH,
   seededRng,
   SOFT_PITY_START,
+  SOFT_PITY_STEP,
   type RosterEntry,
 } from '../src/core/gacha';
 import { GACHA } from '../src/data/gacha';
@@ -66,6 +67,13 @@ describe('chance de lendário (pity)', () => {
     expect(legendaryChance(SOFT_PITY_START)).toBeGreaterThan(RATES.lendario);
     expect(legendaryChance(HARD_PITY - 1)).toBe(1);
   });
+
+  it('o pity suave chega a 100% exatamente na tiragem do pity duro', () => {
+    // sinceLegendary 78 = 79ª tiragem; 79 = 80ª
+    expect(legendaryChance(HARD_PITY - 2)).toBeLessThan(1);
+    expect(legendaryChance(HARD_PITY - 1)).toBe(1);
+    expect(RATES.lendario + (HARD_PITY - SOFT_PITY_START) * SOFT_PITY_STEP).toBeCloseTo(1, 9);
+  });
 });
 
 describe('pull', () => {
@@ -76,13 +84,13 @@ describe('pull', () => {
     expect(JSON.stringify(state)).toBe(snapshot);
   });
 
-  it('sem sorte: épico a cada 10 e lendário antes do pity duro', () => {
+  it('sem sorte: épico a cada 10 e lendário exatamente no pity duro', () => {
     const { results } = pullMany(config, config.permanent, newPityState(), HARD_PITY, () => 0.99);
     const rarities = results.map((r) => r.rarity);
-    // Com o pity suave (+6% por tiragem a partir da 61ª) a chance chega a 100% na 77ª,
-    // antes do pity duro de 80.
+    // Com o pity suave (+4,85% por tiragem a partir da 61ª) a chance chega a 100% na 80ª,
+    // junto com o pity duro.
     const firstLegendary = rarities.indexOf('lendario') + 1;
-    expect(firstLegendary).toBe(77);
+    expect(firstLegendary).toBe(HARD_PITY);
     let sinceEpic = 0;
     for (const r of rarities.slice(0, firstLegendary)) {
       sinceEpic = r === 'raro' ? sinceEpic + 1 : 0;

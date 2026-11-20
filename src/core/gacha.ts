@@ -55,7 +55,8 @@ export type Reward =
 
 export const RATES = { lendario: 0.03, epico: 0.15 } as const; // resto = raro (82%)
 export const SOFT_PITY_START = 60;
-export const SOFT_PITY_STEP = 0.06;
+/** 0.03 + 20 × 0.0485 = 1: a chance chega a 100% exatamente na tiragem HARD_PITY. */
+export const SOFT_PITY_STEP = 0.0485;
 export const HARD_PITY = 80;
 export const EPIC_EVERY = 10;
 /** Ninja repetido vira fragmentos. */
