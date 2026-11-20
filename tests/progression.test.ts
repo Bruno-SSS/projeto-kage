@@ -54,8 +54,30 @@ describe('progressao.json', () => {
 });
 
 describe('nível e XP', () => {
-  it('a curva cresce a cada nível', () => {
-    for (let n = 1; n < 50; n++) expect(xpToNext(n + 1, cfg)).toBeGreaterThan(xpToNext(n, cfg));
+  it('a curva cresce a cada nível até o máximo', () => {
+    for (let n = 1; n < cfg.nivel.maximo; n++) {
+      expect(xpToNext(n + 1, cfg)).toBeGreaterThan(xpToNext(n, cfg));
+    }
+  });
+
+  it('usa os valores da tabela nos níveis conhecidos', () => {
+    expect(xpToNext(1, cfg)).toBe(2000);
+    expect(xpToNext(10, cfg)).toBe(13000);
+    expect(xpToNext(50, cfg)).toBe(1050313);
+    expect(xpToNext(65, cfg)).toBe(3162992);
+  });
+
+  it('interpola com crescimento constante entre níveis conhecidos', () => {
+    // 20 → 35: mesma razão entre cada nível
+    const ratio = Math.pow(396929 / 83581, 1 / 15);
+    expect(xpToNext(21, cfg)).toBe(Math.round(83581 * ratio));
+    expect(xpToNext(34, cfg)).toBe(Math.round(83581 * Math.pow(ratio, 14)));
+  });
+
+  it('depois da tabela cresce o percentual configurado', () => {
+    const growth = 1 + cfg.nivel.crescimentoAposTabela;
+    expect(xpToNext(66, cfg)).toBe(Math.round(3162992 * growth));
+    expect(xpToNext(70, cfg)).toBe(Math.round(3162992 * Math.pow(growth, 5)));
   });
 
   it('sobe vários níveis de uma vez, guarda o excedente e paga o presente de nível', () => {

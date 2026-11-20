@@ -3,16 +3,14 @@
 Os números ficam em **`src/data/progressao.json`**; a lógica em `src/core/progression.ts`.
 Depois de editar, rode `npm test`.
 
-> A curva de XP (`nivel.xpBase` e `nivel.xpExpoente`) é **provisória**. Será recalibrada com a
-> pesquisa de XP por nível.
-
 ## `nivel`
 
-| Campo                  | O que é                                                            |
-| ---------------------- | ------------------------------------------------------------------ |
-| `maximo`               | Nível máximo da conta.                                             |
-| `xpBase`, `xpExpoente` | XP para passar do nível N = `xpBase × N^xpExpoente`.               |
-| `presentes`            | Recompensa ao chegar em cada nível (`ryo`, `cupom`, `pergaminho`). |
+| Campo                   | O que é                                                                                                                                                                                                          |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `maximo`                | Nível máximo da conta.                                                                                                                                                                                           |
+| `tabelaXp`              | XP para passar de cada nível: `{ "1": 2000, "10": 13000, ... }`. Níveis que faltam são preenchidos com crescimento percentual constante entre os vizinhos. Valores da pesquisa (tabela de 2017–18, níveis 1–65). |
+| `crescimentoAposTabela` | Crescimento por nível depois do último nível da tabela (0.076 = +7,6%).                                                                                                                                          |
+| `presentes`             | Recompensa ao chegar em cada nível (`ryo`, `cupom`, `pergaminho`).                                                                                                                                               |
 
 ## `dia`
 

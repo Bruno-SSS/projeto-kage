@@ -1,17 +1,70 @@
 {
-  "_observacao": "Valores de referência da pesquisa de missões. A curva de XP é PROVISÓRIA até a pesquisa trazer a tabela por nível. Documentação: docs/progressao.md",
+  "_observacao": "Valores de referência da pesquisa de missões e progressão. Documentação: docs/progressao.md",
   "nivel": {
     "maximo": 100,
-    "xpBase": 1000,
-    "xpExpoente": 2.2,
+    "tabelaXp": {
+      "1": 2000,
+      "2": 3000,
+      "3": 3500,
+      "4": 5000,
+      "5": 6000,
+      "6": 7000,
+      "7": 9000,
+      "8": 11000,
+      "9": 12000,
+      "10": 13000,
+      "11": 16713,
+      "12": 17908,
+      "13": 19103,
+      "14": 20297,
+      "15": 29849,
+      "16": 35819,
+      "17": 47761,
+      "18": 53730,
+      "19": 71640,
+      "20": 83581,
+      "35": 396929,
+      "36": 441258,
+      "49": 858620,
+      "50": 1050313,
+      "58": 1936273,
+      "61": 2426074,
+      "63": 2782586,
+      "64": 2969868,
+      "65": 3162992
+    },
+    "crescimentoAposTabela": 0.076,
     "presentes": [
-      { "nivel": 10, "ryo": 5000 },
-      { "nivel": 20, "ryo": 10000 },
-      { "nivel": 30, "ryo": 25000, "pergaminho": 1 },
-      { "nivel": 40, "ryo": 50000 },
-      { "nivel": 50, "ryo": 75000 },
-      { "nivel": 60, "ryo": 100000 },
-      { "nivel": 70, "ryo": 150000, "pergaminho": 2 }
+      {
+        "nivel": 10,
+        "ryo": 5000
+      },
+      {
+        "nivel": 20,
+        "ryo": 10000
+      },
+      {
+        "nivel": 30,
+        "ryo": 25000,
+        "pergaminho": 1
+      },
+      {
+        "nivel": 40,
+        "ryo": 50000
+      },
+      {
+        "nivel": 50,
+        "ryo": 75000
+      },
+      {
+        "nivel": 60,
+        "ryo": 100000
+      },
+      {
+        "nivel": 70,
+        "ryo": 150000,
+        "pergaminho": 2
+      }
     ]
   },
   "dia": {
@@ -46,7 +99,7 @@
         "ryo": 3000,
         "fragmentos": 1,
         "inimigos": 3,
-        "forcaInimigo": 1.0
+        "forcaInimigo": 1
       },
       "A": {
         "chance": 0.12,
@@ -94,11 +147,29 @@
   ],
   "bonusSemanal": {
     "0": [],
-    "1": [{ "atividade": "historia", "recurso": "xp", "multiplicador": 2 }],
-    "2": [{ "atividade": "missao", "recurso": "xp", "multiplicador": 2 }],
+    "1": [
+      {
+        "atividade": "historia",
+        "recurso": "xp",
+        "multiplicador": 2
+      }
+    ],
+    "2": [
+      {
+        "atividade": "missao",
+        "recurso": "xp",
+        "multiplicador": 2
+      }
+    ],
     "3": [],
     "4": [],
-    "5": [{ "atividade": "missao", "recurso": "ryo", "multiplicador": 2 }],
+    "5": [
+      {
+        "atividade": "missao",
+        "recurso": "ryo",
+        "multiplicador": 2
+      }
+    ],
     "6": []
   }
 }

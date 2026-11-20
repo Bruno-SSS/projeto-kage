@@ -38,8 +38,10 @@ export interface DailyTaskConfig {
 export interface ProgressionConfig {
   nivel: {
     maximo: number;
-    xpBase: number;
-    xpExpoente: number;
+    /** XP para passar do nível N, por nível. Níveis faltando são interpolados. */
+    tabelaXp: Record<string, number>;
+    /** Crescimento por nível depois do último da tabela (0.076 = +7,6%). */
+    crescimentoAposTabela: number;
     presentes: { nivel: number; ryo?: number; cupom?: number; pergaminho?: number }[];
   };
   dia: { horaReset: number; loginRyo: number };
@@ -108,8 +110,28 @@ const BRT_OFFSET_MS = -3 * 3600_000;
 
 // -------------------------------------------------------------- nível
 
+/**
+ * XP para passar do nível `level`. Usa a tabela; entre dois níveis conhecidos
+ * interpola em escala logarítmica (crescimento percentual constante), e depois
+ * do último cresce `crescimentoAposTabela` por nível.
+ */
 export function xpToNext(level: number, cfg: ProgressionConfig): number {
-  return Math.round(cfg.nivel.xpBase * Math.pow(level, cfg.nivel.xpExpoente));
+  const points = Object.entries(cfg.nivel.tabelaXp)
+    .map(([lv, xp]) => [Number(lv), xp] as const)
+    .sort((a, b) => a[0] - b[0]);
+  const exact = points.find(([lv]) => lv === level);
+  if (exact) return exact[1];
+  const first = points[0];
+  if (level < first[0]) return first[1];
+  const last = points[points.length - 1];
+  if (level > last[0]) {
+    return Math.round(last[1] * Math.pow(1 + cfg.nivel.crescimentoAposTabela, level - last[0]));
+  }
+  const upper = points.findIndex(([lv]) => lv > level);
+  const [lv0, xp0] = points[upper - 1];
+  const [lv1, xp1] = points[upper];
+  const t = (level - lv0) / (lv1 - lv0);
+  return Math.round(xp0 * Math.pow(xp1 / xp0, t));
 }
 
 export function newPlayer(starters: string[], now: Date, cfg: ProgressionConfig): PlayerState {
