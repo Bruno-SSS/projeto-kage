@@ -1,6 +1,10 @@
 import Phaser from 'phaser';
 import { BattleScene } from './scenes/BattleScene';
+import { DailyScene } from './scenes/DailyScene';
 import { FormationScene } from './scenes/FormationScene';
+import { HubScene } from './scenes/HubScene';
+import { MissionsScene } from './scenes/MissionsScene';
+import { RecruitScene } from './scenes/RecruitScene';
 import { ResultScene } from './scenes/ResultScene';
 import { TitleScene } from './scenes/TitleScene';
 import { COLORS, HEIGHT, WIDTH } from './ui/theme';
@@ -16,7 +20,16 @@ const game = new Phaser.Game({
     width: WIDTH,
     height: HEIGHT,
   },
-  scene: [TitleScene, FormationScene, BattleScene, ResultScene],
+  scene: [
+    TitleScene,
+    HubScene,
+    FormationScene,
+    MissionsScene,
+    DailyScene,
+    RecruitScene,
+    BattleScene,
+    ResultScene,
+  ],
 });
 
 // Atalho para depuração no console do navegador.

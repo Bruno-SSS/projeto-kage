@@ -1,22 +1,14 @@
 import Phaser from 'phaser';
 import { GRID_SIZE, MAX_TEAM_SIZE } from '../core/formation';
 import type { NinjaTemplate } from '../core/types';
-import { DEFAULT_FORMATION, ENEMY_FORMATION } from '../data/formations';
-import { NINJAS, ROSTER } from '../data/ninjas';
+import { NINJAS } from '../data/ninjas';
 import { Button } from '../ui/Button';
 import { describeNinja } from '../ui/describe';
-import {
-  firstFreeCell,
-  placeNinja,
-  removeNinja,
-  toSlots,
-  type Placement,
-} from '../ui/formationState';
+import { firstFreeCell, placeNinja, removeNinja, type Placement } from '../ui/formationState';
 import { NinjaToken, TOKEN_RADIUS } from '../ui/NinjaToken';
-import { loadJSON, saveJSON } from '../ui/storage';
+import { loadFormation, ownedRoster, saveFormation } from '../ui/session';
 import { COLORS, ELEMENT_LABELS, TEXT, textStyle } from '../ui/theme';
 
-const STORAGE_KEY = 'kage.formation';
 const CELL = 92;
 /** x da coluna 0 (frente). As colunas seguintes vão para a esquerda. */
 const GRID_FRONT_X = 390;
@@ -46,13 +38,13 @@ export class FormationScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.placements = sanitize(loadJSON<Placement[]>(STORAGE_KEY, DEFAULT_FORMATION));
+    this.placements = loadFormation();
     this.placedTokens = [];
     this.cards.clear();
     this.drag = undefined;
 
     this.add.text(480, 34, 'Monte sua formação', textStyle(28, TEXT.main, true)).setOrigin(0.5);
-    new Button(this, 70, 34, 100, 36, '← Voltar', () => this.scene.start('Title'), {
+    new Button(this, 70, 34, 100, 36, '← Voltar', () => this.scene.start('Hub'), {
       fontSize: 15,
     });
 
@@ -68,7 +60,7 @@ export class FormationScene extends Phaser.Scene {
     this.showHint();
 
     this.counter = this.add.text(820, 444, '', textStyle(15, TEXT.muted)).setOrigin(0.5);
-    this.fight = new Button(this, 820, 488, 200, 52, 'Lutar!', () => this.startBattle(), {
+    this.fight = new Button(this, 820, 488, 200, 52, 'Pronto', () => this.scene.start('Hub'), {
       fontSize: 22,
       fill: 0x3a2a12,
     });
@@ -120,9 +112,10 @@ export class FormationScene extends Phaser.Scene {
   private drawRoster(): void {
     this.add.text(510, 70, 'Elenco', textStyle(16, TEXT.muted, true));
     // A lista se ajusta para caber entre o título e o painel de informações.
-    const step = Math.min(66, 340 / ROSTER.length);
+    const roster = ownedRoster();
+    const step = Math.min(66, 340 / roster.length);
     const scale = Math.min(1, (step - 6) / 58);
-    ROSTER.forEach((ninja, i) => {
+    roster.forEach((ninja, i) => {
       const card = this.add.container(720, 92 + step / 2 + i * step).setScale(scale);
       const bg = this.add.rectangle(0, 0, 420, 58, COLORS.panel).setStrokeStyle(1, COLORS.border);
       const token = new NinjaToken(this, -180, 0, ninja).setScale(0.75);
@@ -174,7 +167,7 @@ export class FormationScene extends Phaser.Scene {
 
     this.counter.setText(`${this.placements.length}/${MAX_TEAM_SIZE} ninjas`);
     this.fight.setEnabled(this.placements.length > 0);
-    saveJSON(STORAGE_KEY, this.placements);
+    saveFormation(this.placements);
   }
 
   private startDrag(id: string, p: Phaser.Input.Pointer, fromCell: boolean): void {
@@ -252,24 +245,4 @@ export class FormationScene extends Phaser.Scene {
     this.info.setColor(TEXT.teamB).setText(message);
     this.time.delayedCall(1800, () => !this.drag && this.showHint());
   }
-
-  private startBattle(): void {
-    this.scene.start('Battle', {
-      teamA: toSlots(this.placements, NINJAS),
-      teamB: toSlots(ENEMY_FORMATION, NINJAS),
-    });
-  }
-}
-
-/** Descarta dados salvos inválidos (ninja removido do jogo, casa fora do grid...). */
-function sanitize(saved: Placement[]): Placement[] {
-  if (!Array.isArray(saved)) return DEFAULT_FORMATION;
-  let result: Placement[] = [];
-  for (const p of saved) {
-    if (!(p?.id in NINJAS)) continue;
-    if (![p.row, p.col].every((v) => Number.isInteger(v) && v >= 0 && v < GRID_SIZE)) continue;
-    const next = placeNinja(result, p.id, p.row, p.col);
-    if (next) result = next;
-  }
-  return result;
 }

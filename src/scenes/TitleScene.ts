@@ -33,6 +33,6 @@ export class TitleScene extends Phaser.Scene {
   }
 
   private play(): void {
-    this.scene.start('Formation');
+    this.scene.start('Hub');
   }
 }
