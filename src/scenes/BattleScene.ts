@@ -11,6 +11,10 @@ import { COLORS, STATUS_LABELS, TEXT, textStyle } from '../ui/theme';
 export interface BattleData {
   teamA: FormationSlot[];
   teamB: FormationSlot[];
+  /** Missão do quadro que esta luta resolve (paga recompensa se vencer). */
+  missionId?: string;
+  /** Cena para onde voltar depois do resultado. */
+  returnTo?: string;
 }
 
 export interface BattleResult {

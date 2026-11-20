@@ -1,11 +1,11 @@
 import type { Placement } from '../ui/formationState';
 
-/** Formação sugerida para o jogador ao abrir o jogo. */
+/** Formação inicial do jogador (só com os ninjas iniciais, que são os épicos). */
 export const DEFAULT_FORMATION: Placement[] = [
   { id: 'boitata', row: 0, col: 0 },
   { id: 'saci', row: 1, col: 0 },
   { id: 'curupira', row: 2, col: 0 },
-  { id: 'cuca', row: 1, col: 2 },
+  { id: 'mapinguari', row: 1, col: 1 },
 ];
 
 /** Primeiro desafio. A campanha completa chega na Fase 4. */
